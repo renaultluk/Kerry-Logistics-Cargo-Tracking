@@ -23,6 +23,8 @@ State deliveryFunc() {
 void setup() {
   Serial.begin(115200);
   BMEInit();
+  WiFiInit();
+  timeInit();
 }
 
 void loop() {

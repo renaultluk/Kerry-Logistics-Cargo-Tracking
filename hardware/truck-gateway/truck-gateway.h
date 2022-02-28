@@ -8,6 +8,10 @@
 #include <TinyGPS.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
+#include <Firebase_ESP_Client.h>
+#include "addons/TokenHelper.h"
+#include "addons/RTDBHelper.h"
+#include "time.h"
 
 // ******* Constants ******* //
 
@@ -31,6 +35,10 @@ TinyGPS gps;
 
 Adafruit_BME280 bme;
 
+FirebaseData fbdo;
+FirebaseAuth auth;
+FirebaseConfig config;
+
 // ******* Finite State Machine ******* //
 
 typedef enum {
@@ -38,10 +46,29 @@ typedef enum {
   STATE_DELIVERY
 } State;
 
+// ******* Structs ******* //
+
+struct Issue {
+  String cargoID;
+  struct tm timeinfo;
+  String sensor;
+  float data;
+}
+
 // ******* Sensors ******* //
 
 void BMEInit();
 bool tempOutOfBounds();
 bool humidityOutOfBounds();
+
+// ******* Firebase ******* //
+
+void firebaseInit();
+void postIssueToFirebase(Issue issue);
+
+// ******* Utils ******* //
+
+void WiFiInit();
+void timeInit();
 
 #endif
