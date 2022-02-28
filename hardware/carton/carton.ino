@@ -1,4 +1,5 @@
 #include "carton.h"
+#include "settings.h"
 
 State initFunc() {
 
@@ -26,6 +27,7 @@ State deliveryFunc() {
 void setup() {
   Serial.begin(115200);
   IMUInit();
+  WiFiInit();
 }
 
 void loop() {

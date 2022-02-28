@@ -5,6 +5,11 @@
 // ******* Includes *******//
 
 #include <MPU6050.h>
+#include <WiFi.h>
+#include <Firebase_ESP_Client.h>
+#include "addons/TokenHelper.h"
+#include "addons/RTDBHelper.h"
+#include "time.h"
 
 // ******* Constants ******* //
 
@@ -34,12 +39,25 @@
 
 MPU6050 mpu;
 
+FirebaseData fbdo;
+FirebaseAuth auth;
+FirebaseConfig config;
+
 // ******* Finite State Machine (FSM) ******* //
 
 typedef enum {
   STATE_INIT,
   STATE_DELIVERY,
 } State;
+
+// ******* Structs ******* //
+
+struct Issue {
+  String cargoID;
+  struct tm timeinfo;
+  String sensor;
+  float data;
+}
 
 // ******* Sensors *******//
 
@@ -52,5 +70,15 @@ bool opened();
 // IMU
 void IMUInit();
 bool tippedOver();
+
+// ******* Firebase ******* //
+
+void firebaseInit();
+void postIssueToFirebase(Issue issue);
+
+// ******* Utils ******* //
+
+void WiFiInit();
+void timeInit();
 
 #endif
