@@ -8,7 +8,7 @@ float prevTime = micros();
 State deliveryFunc() {
   Serial.println("Entering Delivery State!");
   while (true) {
-    float dt = (micros - prevTime)/1.0e6;
+    float dt = (micros() - prevTime)/1.0e6;
     if (dt > 1.0/CONTROL_FREQ) {
       if (tempOutOfBounds()) {
 
