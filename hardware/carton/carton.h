@@ -57,7 +57,7 @@ struct Issue {
   struct tm timeinfo;
   String sensor;
   float data;
-}
+};
 
 // ******* Sensors *******//
 

@@ -25,7 +25,7 @@ void firebaseInit() {
 void postIssueToFirebase(Issue issue) {
   FirebaseJson json;
   json.add("cargo-id", issue.cargoID);
-  String timeStr = (issue.timeinfo.tm_year + 1900) + "/" + (issue.timeinfo.tm_mon + 1) + "/" + issue.timeinfo.tm_mday + " " 
+  String timeStr = String(issue.timeinfo.tm_year + 1900) + "/" + String(issue.timeinfo.tm_mon + 1) + "/" + issue.timeinfo.tm_mday + " " 
     + issue.timeinfo.tm_hour + ":" + issue.timeinfo.tm_min + ":" + issue.timeinfo.tm_sec;
   json.add("time", timeStr);
   json.add("sensor", issue.sensor);
