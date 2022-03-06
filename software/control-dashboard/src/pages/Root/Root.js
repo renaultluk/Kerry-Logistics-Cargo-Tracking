@@ -6,6 +6,7 @@ import Login from "../Login/Login";
 import Main from "../Main/Main";
 import CargoInput from "../CargoInput/CargoInput";
 import BatchInfo from "../BatchInfo/BatchInfo";
+import CargoInfo from "../CargoInfo/CargoInfo";
 
 class Root extends Component {
     showToast = (type, message) => {
@@ -57,9 +58,16 @@ class Root extends Component {
                         path="batch-info"
                         render={props => <BatchInfo showToast={this.showToast} {...props} />}
                     />
+                    <Route
+                        exact
+                        path="cargo-info"
+                        render={props => <CargoInfo showToast={this.showToast} {...props} />}
+                    />
                 </Switch>
             </div>
             </BrowserRouter>
         );
     }
 }
+
+export default Root;

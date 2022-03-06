@@ -1,4 +1,5 @@
-import { Button, Typography, Grid, DataGrid } from '@mui/material';
+import { Button, Typography, Grid, TextField } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 
@@ -46,7 +47,7 @@ class BatchInfo extends Component {
                         <Button>
                             Load CSV
                         </Button>
-                        <Button>
+                        <Button onClick={() => this.props.history.push("/cargo-info")} >
                             Add Manually
                         </Button>
                     </Grid>
