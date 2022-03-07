@@ -2,8 +2,7 @@ import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import { TextField, Button, Typography } from "@mui/material";
 
-import "./Login.css";
-import logo from "../../assets/logo.svg";
+import logo from "../assets/logo.svg";
 
 class Login extends Component {
     

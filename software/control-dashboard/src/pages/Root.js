@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { toast, ToastContainer } from 'react-toastify';
 
-import Login from "../Login/Login";
-import Main from "../Main/Main";
-import CargoInput from "../CargoInput/CargoInput";
-import BatchInfo from "../BatchInfo/BatchInfo";
-import CargoInfo from "../CargoInfo/CargoInfo";
+import Login from "./Login";
+import Main from "./Main";
+import BatchesOverview from "./BatchesOverview";
+import BatchInfo from "./BatchInfo";
+import CargoInfo from "./CargoInfo";
 
 class Root extends Component {
     showToast = (type, message) => {
@@ -50,8 +50,8 @@ class Root extends Component {
                     />
                     <Route 
                         exact
-                        path="/cargo-input"
-                        render={props => <CargoInput  showToast={this.showToast} {...props} />}
+                        path="/batches-overview"
+                        render={props => <BatchesOverview  showToast={this.showToast} {...props} />}
                     />
                     <Route
                         exact

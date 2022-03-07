@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { TextField, Button, Typography, Grid, Paper } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 
-import Header from '../../components/Header';
+import Header from '../components/Header';
 
 class Main extends Component {
     getIssues = () => {}
