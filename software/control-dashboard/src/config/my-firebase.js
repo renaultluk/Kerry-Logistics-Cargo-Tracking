@@ -1,4 +1,4 @@
-import firebase from 'firebase';
+import { initializeApp } from 'firebase/app';
 import { getDatabase } from 'firebase/database';
 
 const config = {
@@ -11,10 +11,7 @@ const config = {
     appId: "1:561386564609:web:567ae6b00590dd665da400",
     measurementId: "G-QL1WE7RNMY"
 }
-firebase.initializeApp(config)
-firebase.firestore().settings({
-  timestampsInSnapshots: true
-})
+const app = initializeApp(config);
 
-export const myFirebase = firebase;
-export const db = getDatabase(firebase);
+export const myFirebase = app;
+export const db = getDatabase(app);

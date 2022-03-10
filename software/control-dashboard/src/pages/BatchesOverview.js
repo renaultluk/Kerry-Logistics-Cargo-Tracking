@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { TextField, Button, Typography, Grid } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { getDatabase, ref, onValue } from "firebase/database";
+import { getDatabase, ref, onValue, onChildAdded } from "firebase/database";
 
 import Header from '../components/Header';
 
-import { db } from '../config/firebase';
+import { db } from '../config/my-firebase';
 
 class BatchesOverview extends Component {
     constructor(props) {
@@ -14,18 +14,14 @@ class BatchesOverview extends Component {
         this.state = {
             batches: [],
         };
+
+        const batchRef = ref(db, 'batches/pending');
+        onChildAdded(batchRef, (child) => {
+            this.setState([...this.state.batches, child.val()]);
+        });
     }
     
     componentDidMount() {}
-
-    getBatches = () => {
-        const batchRef = ref(db, 'batches/pending');
-        onValue(batchRef, (snapshot) => {
-            const map = snapshot.val();
-            const result= Object.keys(map).map((key) => map[key]);
-            this.setState({ batches: result });
-        });
-    }
     
     render() {
         return (
