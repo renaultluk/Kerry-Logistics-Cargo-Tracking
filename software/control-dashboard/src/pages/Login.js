@@ -1,8 +1,10 @@
 import React, { Component } from "react";
 import { withRouter, useHistory } from "react-router-dom";
 import { TextField, Button, Typography } from "@mui/material";
+import { Container } from "react-bootstrap";
 
 import logo from "../assets/logo.svg";
+import styles from "../styles/Login.css";
 
 const Login = () => {
     const [username, setUsername] = React.useState("");
@@ -26,7 +28,7 @@ const Login = () => {
 
     // render() {
         return (
-            <div className="login-container">
+            <Container className={styles.loginPageContainer}>
                 <img src={logo} />
                 <Typography variant="h2">Control Dashboard</Typography>
                 <TextField
@@ -47,7 +49,7 @@ const Login = () => {
                 >
                     Login
                 </Button>
-            </div>
+            </Container>
         );
     // }
 }
