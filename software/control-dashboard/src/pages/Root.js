@@ -4,9 +4,9 @@ import { toast, ToastContainer } from 'react-toastify';
 
 import Login from "./Login";
 import Main from "./Main";
-import BatchesOverview from "./BatchesOverview";
-import BatchInfo from "./BatchInfo";
-import CargoInfo from "./CargoInfo";
+// import BatchesOverview from "./BatchesOverview";
+// import BatchInfo from "./BatchInfo";
+// import CargoInfo from "./CargoInfo";
 
 class Root extends Component {
     showToast = (type, message) => {
@@ -38,17 +38,13 @@ class Root extends Component {
                     position={toast.POSITION.TOP_RIGHT}
                 />
                 <Switch>
-                    <Route 
-                        exact 
-                        path="/" 
-                        render={props => <Login showToast={this.showToast} {...props} />} 
-                    />
-                    <Route 
-                        exact
-                        path="/main"
-                        render={props => <Main showToast={this.showToast} {...props} />}
-                    />
-                    <Route 
+                    <Route exact path="/">
+                        <Login showToast={this.showToast} />
+                    </Route>
+                    <Route path="/main">
+                        <Main showToast={this.showToast} />
+                    </Route>
+                    {/* <Route 
                         exact
                         path="/batches-overview"
                         render={props => <BatchesOverview  showToast={this.showToast} {...props} />}
@@ -62,7 +58,7 @@ class Root extends Component {
                         exact
                         path="cargo-info"
                         render={props => <CargoInfo showToast={this.showToast} {...props} />}
-                    />
+                    /> */}
                 </Switch>
             </div>
             </BrowserRouter>

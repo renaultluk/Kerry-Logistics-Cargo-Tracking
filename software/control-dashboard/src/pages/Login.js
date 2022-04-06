@@ -1,30 +1,32 @@
 import React, { Component } from "react";
-import { withRouter } from "react-router-dom";
+import { withRouter, useHistory } from "react-router-dom";
 import { TextField, Button, Typography } from "@mui/material";
 
 import logo from "../assets/logo.svg";
 
-class Login extends Component {
-    
-    constructor(props) {
-        super(props);
-        this.state = {
-            username: "",
-            password: ""
-        };
+const Login = () => {
+    const [username, setUsername] = React.useState("");
+    const [password, setPassword] = React.useState("");
+    const history = useHistory();
+    // constructor(props) {
+    //     super(props);
+    //     this.state = {
+    //         username: "",
+    //         password: ""
+    //     };
+    // }
+
+    // componentDidMount() {
+    //     // this.checkLogin();
+    // }
+
+    const checkLogin = () => { 
+        history.replace("/main");
     }
 
-    componentDidMount() {
-        // this.checkLogin();
-    }
-
-    checkLogin = () => { 
-        this.props.history.push("/main");
-    }
-
-    render() {
+    // render() {
         return (
-            <div class="login-container">
+            <div className="login-container">
                 <img src={logo} />
                 <Typography variant="h2">Control Dashboard</Typography>
                 <TextField
@@ -41,13 +43,13 @@ class Login extends Component {
                     required
                 />
                 <Button
-                    onClick={() => this.checkLogin()}
+                    onClick={checkLogin}
                 >
                     Login
                 </Button>
             </div>
         );
-    }
+    // }
 }
 
 export default withRouter(Login);

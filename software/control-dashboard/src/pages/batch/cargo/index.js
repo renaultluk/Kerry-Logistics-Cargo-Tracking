@@ -3,15 +3,19 @@ import { DataGrid } from '@mui/x-data-grid';
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 
-class BatchInfo extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {}
-    }
-
-    componentDidMount() {}
+const BatchInfo = (props) => {
+    console.log("batch info");
+    // constructor(props) {
+    //     super(props);
+    //     this.state = {}
+    // }
     
-    render() {
+    // componentDidMount() {
+    //     console.log("batch info");
+
+    // }
+    
+    // render() {
         return (
             <>
                 <Grid container spacing={3}>
@@ -23,18 +27,18 @@ class BatchInfo extends Component {
                     <Grid item xs={12}>
                         <Grid container spacing={3}>
                             <Grid item xs={12}>
-                                <Typography variant="h4">Batch ID: {this.props.batch.batchID}</Typography>
+                                <Typography variant="h4">Batch ID: {props.batch.batchID}</Typography>
                             </Grid>
                             <Grid item xs={12}>
-                                <Typography variant="h4">Truck ID: {this.props.batch.truckID}</Typography>
+                                <Typography variant="h4">Truck ID: {props.batch.truckID}</Typography>
                             </Grid>
                             <Grid item xs={12}>
-                                <Typography variant="h4">Requires Temperature: {this.props.batch.requiresTemp}</Typography>
-                                <Typography variant="h4">Requires Humidity: {this.props.batch.requiresHumidity}</Typography>
+                                <Typography variant="h4">Requires Temperature: {props.batch.requiresTemp}</Typography>
+                                <Typography variant="h4">Requires Humidity: {props.batch.requiresHumidity}</Typography>
                             </Grid>
                             <Grid item xs={12}>
-                                <Typography variant="h4">Temperature Lower Bound: {this.props.batch.tempLowerBound}</Typography>
-                                <Typography variant="h4">Temperature Upper Bound: {this.props.batch.tempUpperBound}</Typography>
+                                <Typography variant="h4">Temperature Lower Bound: {props.batch.tempLowerBound}</Typography>
+                                <Typography variant="h4">Temperature Upper Bound: {props.batch.tempUpperBound}</Typography>
                             </Grid>
                             <Grid item xs={12}>
                                 <Typography variant="h4">Humidity Lower Bound:</Typography>
@@ -47,7 +51,7 @@ class BatchInfo extends Component {
                         <Button>
                             Load CSV
                         </Button>
-                        <Button onClick={() => this.props.history.push("/cargo-info")} >
+                        <Button onClick={() => props.history.push("/cargo-info")} >
                             Add Manually
                         </Button>
                     </Grid>
@@ -71,7 +75,7 @@ class BatchInfo extends Component {
 
             </>
         );
-    }
+    // }
 }
 
-export default withRouter(BatchInfo);
+export default BatchInfo;
