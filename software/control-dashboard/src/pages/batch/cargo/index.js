@@ -56,7 +56,7 @@ const BatchInfo = () => {
                                     <FormLabel>
                                         {
                                             batchID ?
-                                                `Batch ID: ${batch.batchID}` :
+                                                `Batch ID: ${batchID}` :
                                                 "New Batch"
                                         }
                                     </FormLabel>
@@ -163,7 +163,7 @@ const BatchInfo = () => {
                                 onClick={
                                     () => {
                                         setBatch(defaultBatch);
-                                        history.push("/main");
+                                        history.goBack();
                                     }
                                 }
                             >
@@ -173,7 +173,7 @@ const BatchInfo = () => {
                                 Save
                             </Button>
                             <Button
-                                onClick={() => history.push("/main")}
+                                onClick={() => history.goBack()}
                             >
                                 Post
                             </Button>

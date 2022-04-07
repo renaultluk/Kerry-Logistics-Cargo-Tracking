@@ -38,7 +38,6 @@ const CargoInfo = () => {
                         />}
                     label="Needs to be Upright"
                 />
-
                 <Button
                     onClick={() => {
                         history.goBack();

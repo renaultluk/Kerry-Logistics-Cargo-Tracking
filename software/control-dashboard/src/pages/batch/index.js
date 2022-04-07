@@ -60,7 +60,7 @@ const BatchesOverview = () => {
                             ]}
                             rows={batches}
                             onRowDoubleClick={(row) => {
-                                history.push(`${url}/batch?batchId=${row.id}`);
+                                history.push(`${url}/batch?batchID=${row.id}`);
                             }}
                         />
                     </div>
