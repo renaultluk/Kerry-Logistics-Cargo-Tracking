@@ -1,11 +1,11 @@
 import { Button, Typography, Grid, TextField, Checkbox, FormGroup, FormLabel, FormControlLabel } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { withRouter, useHistory, useRouteMatch, Route, Switch } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 
 import { db } from '../../../config/my-firebase';
-import { ref, push, set } from 'firebase/database';
+import { ref, push, set, get } from 'firebase/database';
 
 import CargoInfo from './cargo-details';
 
@@ -39,6 +39,45 @@ const BatchInfo = () => {
     // const [tempLowerBound, setTempLowerBound] = useState(0);
     // const [tempUpperBound, setTempUpperBound] = useState(0);
     // const [cargo, setCargo] = useState([]);
+
+    const fetchData = async () => {
+        const batchRef = ref(db, `batches/pending/${batchID}`);
+        get(batchRef).then((snapshot) => {
+            if (snapshot.exists()) {
+                const obj = snapshot.val();
+                console.log(obj);
+                if (!obj['cargo']) {
+                    obj['cargo'] = [];
+                } else {
+                    obj['cargo'] = Object.values(obj['cargo']);
+                    obj['cargo'].forEach((cargo) => {
+                        cargo['id'] = cargo['cargoID'];
+                    })
+                }
+                setBatch(obj);
+            }
+        })
+    }
+
+    useEffect(() => {
+        if (batchID) {
+            fetchData().catch((error) => console.log(error));
+        }
+    }, []);
+
+    const handleSave = () => {
+        const batchRef = ref(db, `batches/saved/${batchID}`);
+        set(batchRef, batch);
+        history.goBack();
+    }
+
+    const handlePost = () => {
+        const batchRef = ref(db, `batches/pending`);
+        const newRef = batchID ? ref(db, `batches/pending/${batchID}`) : push(batchRef);
+        batch.batchID = newRef.key;
+        set(newRef, batch);
+        history.goBack();
+    }
     
 
 
@@ -70,7 +109,7 @@ const BatchInfo = () => {
                                         }
                                     />
                                     <FormControlLabel
-                                        label="Requires Temperature"
+                                        label="Has Temperature Requirements"
                                         control={
                                             <Checkbox
                                                 checked={batch.requiresTemp}
@@ -102,7 +141,7 @@ const BatchInfo = () => {
                                             null
                                         }
                                     <FormControlLabel
-                                        label="Requires Humidity"
+                                        label="Has Humidity Requirements"
                                         control={
                                             <Checkbox
                                                 checked={batch.requiresHumidity}
@@ -140,7 +179,7 @@ const BatchInfo = () => {
                             <Button>
                                 Load CSV
                             </Button>
-                            <Button onClick={() => history.push(`${url}/cargo`)} >
+                            <Button onClick={() => history.push(`${url}/cargo?batchID=${batchID}`)} >
                                 Add Manually
                             </Button>
                         </Grid>
@@ -149,11 +188,14 @@ const BatchInfo = () => {
                             <div style={{ height: '500px' }}>
                                 <DataGrid
                                     columns={[
-                                        { field: 'cargo-id', headerName: 'Cargo ID' },
-                                        { field: 'fragile', headerName: 'Is Fragile' },
-                                        { field: 'is-upright', headerName: 'Needs to be Upright' },
+                                        { field: 'cargoID', headerName: 'Cargo ID' },
+                                        { field: 'isFragile', headerName: 'Is Fragile' },
+                                        { field: 'isUpright', headerName: 'Needs to be Upright' },
                                     ]}
                                     rows={batch.cargo}
+                                    onRowDoubleClick={(row) => {
+                                        history.push(`${url}/cargo?cargoID=${row.id}&batchID=${batchID}`);
+                                    }}
                                 />
                             </div>
                         </Grid>
@@ -169,12 +211,10 @@ const BatchInfo = () => {
                             >
                                 Cancel
                             </Button>
-                            <Button>
+                            <Button onClick={handleSave}>
                                 Save
                             </Button>
-                            <Button
-                                onClick={() => history.goBack()}
-                            >
+                            <Button onClick={handlePost}>
                                 Post
                             </Button>
                         </Grid>

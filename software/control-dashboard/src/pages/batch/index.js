@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { withRouter, Switch, Route, useRouteMatch, useHistory } from 'react-router-dom';
-import { TextField, Button, Typography, Grid } from '@mui/material';
+import { TextField, Button, Typography, Grid, ButtonBase } from '@mui/material';
 import { Container } from 'react-bootstrap';
 import { DataGrid } from '@mui/x-data-grid';
 import { getDatabase, ref, onValue, onChildAdded, get, child } from "firebase/database";
@@ -21,10 +21,14 @@ const BatchesOverview = () => {
         get(batchRef).then((snapshot) => {
             if (snapshot.exists()) {
                 const obj = snapshot.val();
-                obj.shift();
-                const batches = obj;
-                batches.forEach((batch) => {
-                    batch['id'] = batch['batch-id'];
+                console.log(obj);
+                const arrKeys = Object.keys(obj);
+                const objArr = Object.values(obj);
+                // objArr.shift();
+                const batches = objArr;
+                batches.forEach((batch, index) => {
+                    batch['id'] = arrKeys[index];
+                    batch['batchID'] = arrKeys[index];
                 })
                 console.log(batches);
                 const batchKeys = Object.keys(batches);
@@ -43,14 +47,14 @@ const BatchesOverview = () => {
             <Switch>
                 <Route exact path={path}>
                     <Typography variant="h2">Manage Cargo</Typography>
-                    <Link to={`${url}/batch`}>
+                    <Button onClick={() => history.push(`${url}/batch`)}>
                         Add New Batch
-                    </Link>
+                    </Button>
                     <div style={{ height: 500 }}>
                         <DataGrid 
                             columns={[
-                                { field: 'batch-id', headerName: 'Batch ID' },
-                                { field: 'truck-id', headerName: 'Truck ID' },
+                                { field: 'batchID', headerName: 'Batch ID' },
+                                { field: 'truckID', headerName: 'Truck ID' },
                                 { field: 'requiresTemp', headerName: 'Has Temperature Requirements' },
                                 { field: 'requiresHumidity', headerName: 'Has Humidity Requirements' },
                                 { field: 'tempLowerBound', headerName: 'Temperature Lower Bound' },

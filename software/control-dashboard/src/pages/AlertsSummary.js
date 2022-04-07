@@ -1,9 +1,34 @@
+import { useState, useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
 import { TextField, Button, Typography, Grid, Paper } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 
+import { db } from '../config/my-firebase';
+import { ref, onValue, onChildAdded, get, child } from "firebase/database";
+
 const AlertsSummary = () => {
-    console.log("logged in")
+    console.log("logged in");
+    const [alerts, setAlerts] = useState([]);
+
+    const fetchData = async () => {
+        const alertRef = ref(db, 'issues/pending');
+        get(alertRef).then((snapshot) => {
+            if (snapshot.exists()) {
+                const obj = snapshot.val();
+                obj.shift();
+                const alertValues = obj;
+                alertValues.forEach((alert, index) => {
+                    alert['id'] = index;
+                })
+                console.log(alertValues);
+                setAlerts(alertValues);
+            }
+        })
+    }
+
+    useEffect(() => {
+        fetchData().catch((error) => console.log(error));
+    }, [])
     
     return (
         <>
@@ -23,6 +48,7 @@ const AlertsSummary = () => {
                                 { field: 'issue', headerName: 'Issue' },
                                 { field: 'data', headerName: 'Data' },
                             ]}
+                            rows={alerts}
                         />
                     </div>
                 </Grid>
