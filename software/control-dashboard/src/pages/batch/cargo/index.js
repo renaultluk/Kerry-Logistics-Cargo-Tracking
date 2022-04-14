@@ -92,13 +92,15 @@ const BatchInfo = () => {
                         </Grid>
                         <Grid item xs={12}>
                             <FormGroup>
-                                    <FormLabel>
-                                        {
-                                            batchID ?
-                                                `Batch ID: ${batchID}` :
-                                                "New Batch"
-                                        }
-                                    </FormLabel>
+                                <FormControlLabel
+                                    label="Batch ID"
+                                    control={
+                                        <TextField 
+                                            value={batch.batchID} 
+                                            onChange={(e) => setBatch({...batch, batchID: e.target.value})} 
+                                        />
+                                    }
+                                />
                                     {/* <FormControlLabel 
                                         label="Truck ID"
                                         control={
