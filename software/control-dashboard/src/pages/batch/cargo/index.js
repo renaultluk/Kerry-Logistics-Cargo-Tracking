@@ -21,7 +21,7 @@ const BatchInfo = () => {
 
     const defaultBatch = {
         batchID: "",
-        truckID: "",
+        // truckID: "",
         requiresTemp: false,
         requiresHumidity: false,
         tempLowerBound: 0,
@@ -99,7 +99,7 @@ const BatchInfo = () => {
                                                 "New Batch"
                                         }
                                     </FormLabel>
-                                    <FormControlLabel 
+                                    {/* <FormControlLabel 
                                         label="Truck ID"
                                         control={
                                             <TextField 
@@ -107,7 +107,7 @@ const BatchInfo = () => {
                                                 onChange={(e) => setBatch({ ...batch, truckID: e.target.value })}
                                             />
                                         }
-                                    />
+                                    /> */}
                                     <FormControlLabel
                                         label="Has Temperature Requirements"
                                         control={

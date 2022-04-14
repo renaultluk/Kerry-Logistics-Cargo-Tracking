@@ -54,7 +54,7 @@ const BatchesOverview = () => {
                         <DataGrid 
                             columns={[
                                 { field: 'batchID', headerName: 'Batch ID' },
-                                { field: 'truckID', headerName: 'Truck ID' },
+                                // { field: 'truckID', headerName: 'Truck ID' },
                                 { field: 'requiresTemp', headerName: 'Has Temperature Requirements' },
                                 { field: 'requiresHumidity', headerName: 'Has Humidity Requirements' },
                                 { field: 'tempLowerBound', headerName: 'Temperature Lower Bound' },
