@@ -6,7 +6,9 @@ import { DataGrid } from '@mui/x-data-grid';
 import { db } from '../config/my-firebase';
 import { ref, onValue, onChildAdded, get, child } from "firebase/database";
 
-import ReactPDF from '@react-pdf/renderer';
+// import ReactPDF from '@react-pdf/renderer';
+import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
+import Report from '../components/Report';
 
 const AlertsSummary = () => {
     console.log("logged in");
@@ -35,7 +37,7 @@ const AlertsSummary = () => {
     const exportReport = () => {
         const d = new Date();
         const date = d.toLocaleDateString();
-        ReactPDF.render(<Report />, `${__dirname}/report-${date}.pdf`);
+        // ReactPDF.render(<Report />, `${__dirname}/report-${date}.pdf`);
     }
     
     return (
@@ -43,9 +45,15 @@ const AlertsSummary = () => {
             <Grid container spacing={3}>
                 <Grid item xs={12}>
                     <Typography variant="h2">Delivery Status</Typography>
-                    <Button onClick={exportReport}>Export Daily Report</Button>
+                    {/* <Button onClick={exportReport}>Export Daily Report</Button> */}
+                    <PDFDownloadLink document={<Report />} fileName="report.pdf">
+                        {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'Export Daily Report')}
+                    </PDFDownloadLink>
                     <Button>Reload</Button>
                 </Grid>
+                <PDFViewer>
+                    <Report />
+                </PDFViewer>
                 <Grid item xs={12}>
                     <div style={{ height: '500px', width: '100%'}}>
                         <DataGrid

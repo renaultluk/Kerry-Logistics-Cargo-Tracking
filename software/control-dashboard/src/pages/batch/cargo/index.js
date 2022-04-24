@@ -1,4 +1,4 @@
-import { Button, Typography, Grid, TextField, Checkbox, FormGroup, FormLabel, FormControlLabel } from '@mui/material';
+import { Button, Typography, Grid, TextField, Checkbox, FormGroup, FormLabel, FormControlLabel, requirePropFactory } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import React, { useEffect, useState } from 'react';
 import { withRouter, useHistory, useRouteMatch, Route, Switch } from 'react-router-dom';
@@ -32,6 +32,10 @@ const BatchInfo = () => {
     }
     
     const [batch, setBatch] = useState(defaultBatch);
+    const [file, setFile] = useState();
+    const [upload, setUpload] = useState(false);
+
+    const fileReader = new FileReader();
 
     // const [truckID, setTruckID] = useState("");
     // const [requiresTemp, setRequiresTemp] = useState(false);
@@ -64,6 +68,84 @@ const BatchInfo = () => {
             fetchData().catch((error) => console.log(error));
         }
     }, []);
+
+    const parseCSV = (string) => {
+        const csvAllRows = string.split("\n");
+
+        let csvBatchGeneral = csvAllRows.slice(0,5);
+        let csvCargoRows = csvAllRows.slice(7);
+        let resBatchGeneral = []
+        let resCargoRows = []
+
+        csvBatchGeneral.forEach(function (row) {
+            const rowArr = row.split(',');
+            console.log(rowArr, rowArr[1]);
+            const resultStr = rowArr[1];
+            resBatchGeneral.push(resultStr);
+        })
+        console.log("csvBatchGeneral: ",csvBatchGeneral);
+        console.log("resBatchGeneral: ", resBatchGeneral);
+        const csvTempLower = resBatchGeneral[1];
+        const csvTempUpper = resBatchGeneral[2];
+        const csvTempReq = !(csvTempLower === '' || csvTempUpper === '');
+        const csvHumdLower = resBatchGeneral[3];
+        const csvHumdUpper = resBatchGeneral[4];
+        const csvHumdReq = !(csvHumdLower === '' || csvHumdUpper === '');
+
+        console.log(csvCargoRows);
+        csvCargoRows.forEach(row => {
+            if (row.charAt(row.length - 1) === '\r') {
+                console.log("\\r detected");
+                row = row.slice(0, row.length - 1);
+                console.log("new row: ", row);
+            }
+            const rowArr = row.split(",");
+            resCargoRows.push({
+                cargoID: rowArr[0],
+                id: rowArr[0],
+                isFragile: rowArr[1] === "Yes", 
+                isUpright: rowArr[2] === "Yes"
+            });
+        })
+
+        console.log("CSV parsed");
+        
+        const resBatch = {
+            batchID: resBatchGeneral[0],
+            requiresTemp: csvTempReq,
+            requiresHumidity: csvHumdReq,
+            tempLowerBound: csvTempLower,
+            tempUpperBound: csvTempUpper,
+            humidityLowerBound: csvHumdLower,
+            humidityUpperBound: csvHumdUpper,
+            cargo: resCargoRows
+        }
+
+        console.log(resBatch);
+
+        setUpload(false);
+        setBatch(resBatch);
+    }
+
+    const CSVOnChange = (e) => {
+        setFile(e.target.files[0]);
+        // loadCSV(e);
+    }
+
+    const loadCSV = (e) => {
+        e.preventDefault();
+
+        if (file) {
+            console.log("file found");
+            fileReader.onload = function (event) {
+                console.log("file reader loaded");
+                const csvOutput = event.target.result;
+                parseCSV(csvOutput);
+            }
+            fileReader.readAsText(file);
+        }
+
+    }
 
     const handleSave = () => {
         const batchRef = ref(db, `batches/saved/${batchID}`);
@@ -178,13 +260,30 @@ const BatchInfo = () => {
                         </Grid>
 
                         <Grid item xs={12}>
-                            <Button>
+                            <Button onClick={() => setUpload(!upload)}>
                                 Load CSV
                             </Button>
                             <Button onClick={() => history.push(`${url}/cargo?batchID=${batchID}`)} >
                                 Add Manually
                             </Button>
                         </Grid>
+
+                        { upload ?
+                            <div>
+
+                                <input
+                                    type="file"
+                                    accept=".csv"
+                                    onChange={CSVOnChange}
+                                />
+                                <Button
+                                    onClick={e => loadCSV(e)}
+                                >
+                                    Submit
+                                </Button>
+                            </div>
+                            : null
+                        }
 
                         <Grid item xs={12}>
                             <div style={{ height: '500px' }}>
