@@ -6,6 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import Root from './pages/Root';
 import Header from './components/Header';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-toastify/dist/ReactToastify.css';
 
 ReactDOM.render(
   <React.StrictMode>

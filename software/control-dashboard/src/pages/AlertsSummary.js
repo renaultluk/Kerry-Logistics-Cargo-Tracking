@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
 import { TextField, Button, Typography, Grid, Paper } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
+import { toast } from 'react-toastify';
 
 import { db } from '../config/my-firebase';
 import { ref, onValue, onChildAdded, get, child } from "firebase/database";
@@ -41,6 +42,27 @@ const AlertsSummary = () => {
                 const alertValues = obj;
                 alertValues.forEach((alert, index) => {
                     alert['id'] = index;
+                })
+                console.log(alertValues);
+                setAlerts(alertValues);
+            }
+        })
+        onChildAdded(alertListenerRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const obj = snapshot.val();
+                obj.shift();
+                const alertValues = obj;
+                alertValues.forEach((alert, index) => {
+                    alert['id'] = index;
+                })
+                toast.error("New issue", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
                 })
                 console.log(alertValues);
                 setAlerts(alertValues);
