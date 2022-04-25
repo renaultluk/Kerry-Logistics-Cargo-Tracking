@@ -32,6 +32,22 @@ const AlertsSummary = () => {
 
     useEffect(() => {
         fetchData().catch((error) => console.log(error));
+
+        const alertListenerRef = ref(db, 'issues/pending');
+        onValue(alertListenerRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const obj = snapshot.val();
+                obj.shift();
+                const alertValues = obj;
+                alertValues.forEach((alert, index) => {
+                    alert['id'] = index;
+                })
+                console.log(alertValues);
+                setAlerts(alertValues);
+            }
+        })
+
+        return () => alertListenerRef.off();
     }, [])
 
     const exportReport = () => {
