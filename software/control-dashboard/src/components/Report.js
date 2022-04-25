@@ -5,11 +5,19 @@ import { db } from '../config/my-firebase';
 import { ref, get } from "firebase/database";
 
 const styles = StyleSheet.create({
-    page: {
+    portraitPage: {
         size: "A4",
         orientation: "portrait",
         flexDirection: 'column',
         backgroundColor: '#ffffff',
+        padding: 10,
+    },
+    landscapePage: {
+        size: "A4",
+        orientation: "landscape",
+        flexDirection: 'column',
+        backgroundColor: '#ffffff',
+        padding: 10,
     },
     title: {
         fontSize: 12,
@@ -51,6 +59,7 @@ const [batchesData, setBatchesData] = useState(
                 obj = Object.values(obj);
                 // console.log("fetched pending", obj);
                 pendingBatches = obj;
+                console.log("pending batches", pendingBatches);
                 setBatchesData({
                     ...batchesData,
                     pendingBatches: obj
@@ -121,11 +130,21 @@ const [batchesData, setBatchesData] = useState(
 
     return (
         <Document>
-            <Page style={styles.page}>
-                <View>
-                    <Text>Daily Report</Text>
-                    <Text>Export Date and Time: {date}</Text>
+            <Page style={styles.portraitPage}>
+                <Text>Daily Summary Report</Text>
+                <Text>Date: {date}</Text>
+                <View style={styles.contentBox}>
+                    <Text>Number of trucks: </Text>
+                    <Text>Number of cartons: </Text>
+                    <Text>Number of driver-resolvable alerts: </Text>
+                    <Text>Number of driver-unresolvable alerts: </Text>
+                    <Text>Total number of alerts: </Text>
+                    <Text>Number of alerts resolved: </Text>
+                </View>
 
+            </Page>
+            <Page style={styles.landscapePage}>
+                <View>
                     <Text style={styles.subheader}>Pending Batches: {batchesData.pendingBatches.length}</Text>
                     <View style={styles.contentBox}>
                         {
