@@ -9,8 +9,8 @@ import { ref, onValue, onChildAdded, get, child } from "firebase/database";
 
 // import ReactPDF from '@react-pdf/renderer';
 import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
-import Report from '../components/Report';
-import ReportCSV from '../components/ReportCSV';
+// import Report from '../components/Report';
+// import ReportCSV from '../components/ReportCSV';
 
 const AlertsSummary = () => {
     console.log("logged in");
@@ -85,15 +85,15 @@ const AlertsSummary = () => {
                 <Grid item xs={12}>
                     <Typography variant="h2">Delivery Status</Typography>
                     {/* <Button onClick={exportReport}>Export Daily Report</Button> */}
-                    <PDFDownloadLink document={<Report />} fileName="report.pdf">
+                    {/* <PDFDownloadLink document={<Report />} fileName="report.pdf">
                         {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'Export Daily Report')}
                     </PDFDownloadLink>
-                    <ReportCSV />
+                    <ReportCSV /> */}
                     <Button>Reload</Button>
                 </Grid>
-                <PDFViewer>
+                {/* <PDFViewer>
                     <Report />
-                </PDFViewer>
+                </PDFViewer> */}
                 <Grid item xs={12}>
                     <div style={{ height: '500px', width: '100%'}}>
                         <DataGrid

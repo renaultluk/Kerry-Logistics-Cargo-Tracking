@@ -41,7 +41,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "electron": "electron ."
   },
   "eslintConfig": {
     "extends": [
@@ -63,10 +64,11 @@
   },
   "devDependencies": {
     "axios": "^0.27.0",
-    "electron": "^18.0.2",
+    "electron": "^18.2.0",
     "electron-is-dev": "^2.0.0",
     "file-saver": "^2.0.5",
     "process": "^0.11.10",
     "xlsx": "^0.18.5"
-  }
+  },
+  "main": "src/electron-starter.js"
 }
