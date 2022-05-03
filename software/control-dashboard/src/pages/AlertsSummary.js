@@ -8,7 +8,7 @@ import { db } from '../config/my-firebase';
 import { ref, onValue, onChildAdded, get, child } from "firebase/database";
 
 // import ReactPDF from '@react-pdf/renderer';
-import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
+// import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
 // import Report from '../components/Report';
 // import ReportCSV from '../components/ReportCSV';
 
