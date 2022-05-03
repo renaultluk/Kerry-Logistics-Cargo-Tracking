@@ -2,15 +2,14 @@ import { useState, useEffect } from "react";
 import { db } from "../config/my-firebase";
 import { ref, onValue, onChildAdded, get, child } from "firebase/database";
 import { CSVDownload, CSVLink } from "react-csv";
-import Button from '@material-ui/core/Button';
-import * as XLSX from "xlsx";
+import Button from '@mui/material/Button';
+// import * as XLSX from "xlsx";
+import FileSaver from "file-saver";
 
 const ReportCSV = () => {
-    const exportToExcel = async () => {
-            const fileType =
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
-            const fileExtension = ".xlsx";
-        
+    const [data, setData] = useState([]);
+    
+    const exportToExcel = async () => {        
             const d = new Date();
             const date = d.toLocaleDateString();
         
@@ -29,13 +28,20 @@ const ReportCSV = () => {
                 if (snapshot.exists()) {
                     const alertValues = snapshot.val();
                     const pendingAlerts = alertValues.pending;
+                    pendingAlerts.forEach((alert, index) => {
+                        alert['resolved'] = false;
+                    })
                     const resolvedAlerts = alertValues.resolved;
+                    resolvedAlerts.forEach((alert, index) => {
+                        alert['resolved'] = true;
+                    })
 
                     alerts = pendingAlerts.concat(resolvedAlerts);
+                    numAlerts = alerts.length;
                 }
             })
             
-            var generalData = [
+            const generalData = [
                 ["Daily Summary Report"],
                 ["Date", date],
                 ["Number of trucks", numTrucks],
@@ -52,25 +58,54 @@ const ReportCSV = () => {
                 ["Time", "Carton ID", "Truck ID", "Type of alert", "Resolved?", "Driver", "Resolved time", "Alerts Details"],
             ];
 
+            alerts.forEach(alert => {
+                alertsData.push([
+                    alert.time,
+                    alert.cartonID,
+                    alert.truckID,
+                    alert.issue,
+                    alert.resolved,
+                    // alert.driver,
+                    // alert.resolvedTime,
+                    alert.data
+                ]);
+            })
+
             const cartonRef = ref(db, 'cartons');
+            get(cartonRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const cartonValues = snapshot.val();
+                    cartons = Object.values(cartonValues);
+                }
+            })
+
+            var cartonsData = [
+                ["Carton Details"],
+                ["Date:", date],
+                ["Time leaving the warehouse", "Truck ID", "Carton ID", "Arrival Time", "Shipping Time", "Handler", "Any Alerts?"],
+            ];
+
         
-            const page1 = XLSX.utils.json_to_sheet(generalData);
-            const page2 = XLSX.utils.json_to_sheet();
-            const page3 = XLSX.utils.json_to_sheet();
+            // const page1 = XLSX.utils.aoa_to_sheet(generalData);
+            // const page2 = XLSX.utils.aoa_to_sheet(alertsData);
+            // const page3 = XLSX.utils.aoa_to_sheet();
         
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, page1, "General");
-            XLSX.utils.book_append_sheet(wb, page2, "Alerts");
-            XLSX.utils.book_append_sheet(wb, page3, "Carton Details");
-            FileSaver.saveAs(wb, `report-${date}.xlsx`);
+            // const wb = XLSX.utils.book_new();
+            // XLSX.utils.book_append_sheet(wb, page1, "General");
+            // XLSX.utils.book_append_sheet(wb, page2, "Alerts");
+            // XLSX.utils.book_append_sheet(wb, page3, "Carton Details");
+            // FileSaver.saveAs(wb, `report-${date}.xlsx`);
+            // return generalData;
+            setData(generalData);
     }
     
     
     return (
-        // <CSVLink data={data} filename={"report.csv"}>
-        //     {({ csvFile }) => <button>Export Daily Report</button>}
-        // </CSVLink>
-        <Button onClick={exportToExcel}>Export Daily Report</Button>
+        <CSVLink onClick={exportToExcel} data={data} filename={"report.csv"}>
+            {/* {({ csvFile }) => <button>Export Daily Report</button>} */}
+            Export Daily Report
+        </CSVLink>
+        // <Button onClick={exportToExcel}>Export Daily Report</Button>
     )
 }
 
