@@ -101,10 +101,12 @@ const ReportCSV = () => {
     
     
     return (
-        <CSVLink onClick={exportToExcel} data={data} filename={"report.csv"}>
+        <CSVDownload onClick={exportToExcel} data={data} filename={"report.csv"}>
             {/* {({ csvFile }) => <button>Export Daily Report</button>} */}
-            Export Daily Report
-        </CSVLink>
+            <Button>
+                Export Daily Report
+            </Button>
+        </CSVDownload>
         // <Button onClick={exportToExcel}>Export Daily Report</Button>
     )
 }

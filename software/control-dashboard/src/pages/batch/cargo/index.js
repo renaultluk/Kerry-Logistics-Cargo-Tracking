@@ -21,13 +21,15 @@ const BatchInfo = () => {
 
     const defaultBatch = {
         batchID: "",
-        // truckID: "",
+        address: "",
         requiresTemp: false,
         requiresHumidity: false,
         tempLowerBound: 0,
         tempUpperBound: 0,
         humidityLowerBound: 0,
         humidityUpperBound: 0,
+        isFragile: false,
+        isUpright: false,
         cargo: []
     }
     
@@ -183,15 +185,15 @@ const BatchInfo = () => {
                                         />
                                     }
                                 />
-                                    {/* <FormControlLabel 
-                                        label="Truck ID"
+                                    <FormControlLabel 
+                                        label="Address"
                                         control={
                                             <TextField 
-                                                value={batch.truckID}
-                                                onChange={(e) => setBatch({ ...batch, truckID: e.target.value })}
+                                                value={batch.address}
+                                                onChange={(e) => setBatch({ ...batch, address: e.target.value })}
                                             />
                                         }
-                                    /> */}
+                                    />
                                     <FormControlLabel
                                         label="Has Temperature Requirements"
                                         control={
@@ -255,7 +257,25 @@ const BatchInfo = () => {
                                             />
                                         </> :
                                         null
-                                }
+                                    }
+                                    <FormControlLabel
+                                        label="Is Fragile"
+                                        control={
+                                            <Checkbox
+                                                checked={batch.isFragile}
+                                                onChange={(e) => setBatch({ ...batch, isFragile: e.target.checked })}
+                                            />
+                                        }
+                                    />
+                                    <FormControlLabel
+                                        label="Needs to be Upright"
+                                        control={
+                                            <Checkbox
+                                                checked={batch.isUpright}
+                                                onChange={(e) => setBatch({ ...batch, isUpright: e.target.checked })}
+                                            />
+                                        }
+                                    />
                             </FormGroup>
                         </Grid>
 
