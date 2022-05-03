@@ -72,58 +72,34 @@ const BatchInfo = () => {
     }, []);
 
     const parseCSV = (string) => {
-        const csvAllRows = string.split("\n");
+        const csvRows = string.split("\n");
 
-        let csvBatchGeneral = csvAllRows.slice(0,5);
-        let csvCargoRows = csvAllRows.slice(7);
-        let resBatchGeneral = []
-        let resCargoRows = []
+        let csvData = [];
 
-        csvBatchGeneral.forEach(function (row) {
-            const rowArr = row.split(',');
-            console.log(rowArr, rowArr[1]);
-            const resultStr = rowArr[1];
-            resBatchGeneral.push(resultStr);
-        })
-        console.log("csvBatchGeneral: ",csvBatchGeneral);
-        console.log("resBatchGeneral: ", resBatchGeneral);
-        const csvTempLower = resBatchGeneral[1];
-        const csvTempUpper = resBatchGeneral[2];
-        const csvTempReq = !(csvTempLower === '' || csvTempUpper === '');
-        const csvHumdLower = resBatchGeneral[3];
-        const csvHumdUpper = resBatchGeneral[4];
-        const csvHumdReq = !(csvHumdLower === '' || csvHumdUpper === '');
-
-        console.log(csvCargoRows);
-        csvCargoRows.forEach(row => {
+        csvRows.forEach(function (row) {
             if (row.charAt(row.length - 1) === '\r') {
                 console.log("\\r detected");
                 row = row.slice(0, row.length - 1);
                 console.log("new row: ", row);
             }
             const rowArr = row.split(",");
-            resCargoRows.push({
-                cargoID: rowArr[0],
-                id: rowArr[0],
-                isFragile: rowArr[1] === "Yes", 
-                isUpright: rowArr[2] === "Yes"
-            });
+            const resultStr = rowArr[1];
+            csvData.push(resultStr);
         })
 
-        console.log("CSV parsed");
-        
         const resBatch = {
-            batchID: resBatchGeneral[0],
-            requiresTemp: csvTempReq,
-            requiresHumidity: csvHumdReq,
-            tempLowerBound: csvTempLower,
-            tempUpperBound: csvTempUpper,
-            humidityLowerBound: csvHumdLower,
-            humidityUpperBound: csvHumdUpper,
-            cargo: resCargoRows
+            batchID: csvData[0],
+            address: csvData[1],
+            requiresTemp: !(csvData[2] === "" || csvData[3] === ""),
+            requiresHumidity: !(csvData[4] === "" || csvData[5] === ""),
+            tempLowerBound: parseInt(csvData[2]),
+            tempUpperBound: parseInt(csvData[3]),
+            humidityLowerBound: parseInt(csvData[4]),
+            humidityUpperBound: parseInt(csvData[5]),
+            isFragile: csvData[6] === "Yes",
+            isUpright: csvData[7] === "Yes",
+            cargo: [],
         }
-
-        console.log(resBatch);
 
         setUpload(false);
         setBatch(resBatch);
@@ -279,14 +255,14 @@ const BatchInfo = () => {
                             </FormGroup>
                         </Grid>
 
-                        <Grid item xs={12}>
+                        {/* <Grid item xs={12}>
                             <Button onClick={() => setUpload(!upload)}>
                                 Load CSV
                             </Button>
                             <Button onClick={() => history.push(`${url}/cargo?batchID=${batchID}`)} >
                                 Add Manually
                             </Button>
-                        </Grid>
+                        </Grid> */}
 
                         { upload ?
                             <div>
@@ -305,21 +281,25 @@ const BatchInfo = () => {
                             : null
                         }
 
-                        <Grid item xs={12}>
-                            <div style={{ height: '500px' }}>
-                                <DataGrid
-                                    columns={[
-                                        { field: 'cargoID', headerName: 'Cargo ID' },
-                                        { field: 'isFragile', headerName: 'Is Fragile' },
-                                        { field: 'isUpright', headerName: 'Needs to be Upright' },
-                                    ]}
-                                    rows={batch.cargo}
-                                    onRowDoubleClick={(row) => {
-                                        history.push(`${url}/cargo?cargoID=${row.id}&batchID=${batchID}`);
-                                    }}
-                                />
-                            </div>
-                        </Grid>
+                        {
+                            batch.cargo.length > 0 ?
+                                <Grid item xs={12}>
+                                    <div style={{ height: '500px' }}>
+                                        <DataGrid
+                                            columns={[
+                                                { field: 'cargoID', headerName: 'Cargo ID' },
+                                                // { field: 'isFragile', headerName: 'Is Fragile' },
+                                                // { field: 'isUpright', headerName: 'Needs to be Upright' },
+                                            ]}
+                                            rows={batch.cargo}
+                                            onRowDoubleClick={(row) => {
+                                                history.push(`${url}/cargo?cargoID=${row.id}&batchID=${batchID}`);
+                                            }}
+                                        />
+                                    </div>
+                                </Grid>
+                                : null
+                        }
 
                         <Grid item xs={12}>
                             <Button
