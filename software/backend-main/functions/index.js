@@ -69,5 +69,12 @@ exports.exportReport = functions.https.onRequest((req, res) => {
     generalSheet.cell(1, 1).string('Daily Summary Report');
     generalSheet.cell(2, 1).string('Date: ');
     generalSheet.cell(3, 1).string('Number of trucks: ');
-    generalSheet.cell(4, 1).string();
+    generalSheet.cell(4, 1).string('Number of cartons: ');
+    generalSheet.cell(5, 1).string('Number of driver-resolvable alerts: ');
+    generalSheet.cell(6, 1).string('Number of non-resolvable alerts: ');
+    generalSheet.cell(7, 1).string('Total number of alerts: ');
+    generalSheet.cell(8, 1).string('Number of alerts resolved: ');
+
+    const date = Date();
+    generalSheet.cell(2, 2).string(date);
 });
