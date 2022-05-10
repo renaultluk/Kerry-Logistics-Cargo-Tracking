@@ -15,6 +15,7 @@ import ReportCSV from '../components/ReportCSV';
 const AlertsSummary = () => {
     console.log("logged in");
     const [alerts, setAlerts] = useState([]);
+    const [reportData, setReportData] = useState([]);
 
     const fetchData = async () => {
         const alertRef = ref(db, 'issues/pending');
@@ -30,6 +31,10 @@ const AlertsSummary = () => {
                 setAlerts(alertValues);
             }
         })
+    }
+
+    const fetchReportData = async () => {
+        const reportRef = ref(db, 'issues/pending');
     }
 
     useEffect(() => {
