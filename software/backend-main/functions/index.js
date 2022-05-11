@@ -63,7 +63,34 @@ exports.exportReport = functions.https.onRequest((req, res) => {
 
     const generalSheet = wb.addWorksheet('General');
     const alertsSheet = wb.addWorksheet('Alerts');
-    const cartonSheet = wb.addWorksheet('Carton Details');
+    const batchSheet = wb.addWorksheet('Batch Details');
+
+    var trucks = [];
+    var batches = [];
+    var alerts = [];
+    var numDriverResolvable = 0;
+    var numNonResolvable = 0;
+    var numAlertsResolved = 0;
+
+    const truckRef = admin.database().ref('trucks');
+    const batchRef = admin.database().ref('batches/delivered');
+    const alertRef = admin.database().ref('alerts/resolved');
+    truckRef.once('value', (snapshot) => {
+        const values = snapshot.val();
+        trucks = Object.values(values);
+    }).then(
+    batchRef.once('value', (snapshot) => {
+        const values = snapshot.val();
+        batches = Object.values(values);
+    })).then(
+    alertRef.once('value', (snapshot) => {
+        const values = snapshot.val();
+        alerts = Object.values(values);
+    })).catch(
+        (error) => {
+            console.log(error);
+        }
+    )
 
     generalSheet.cell(1, 1).string('Daily Summary Report');
     generalSheet.cell(2, 1).string('Date: ');
