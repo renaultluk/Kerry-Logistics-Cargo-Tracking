@@ -22,7 +22,7 @@ exports.handleAlerts = functions.database.ref('cargo/{cargoID}').onWrite(async (
     const cargoID = context.params.cargoID;
     const batchID = context.params.batchID;
 
-    admin.database().ref(`batches/pending/${batchID}`).once('value').then((snapshot) => {
+    admin.database().ref(`batches/pending/${batchID}`).once('value', (snapshot) => {
         const batchObj = snapshot.val();
 
         if (batchObj.requiresTemp) {
@@ -58,7 +58,6 @@ exports.handleAlerts = functions.database.ref('cargo/{cargoID}').onWrite(async (
 
 exports.exportReport = functions.https.onRequest((req, res) => {
     const xl = require('excel4node');
-    const rootRef = admin.database.ref();
 
     const wb = new xl.Workbook();
 
@@ -69,7 +68,7 @@ exports.exportReport = functions.https.onRequest((req, res) => {
     generalSheet.cell(1, 1).string('Daily Summary Report');
     generalSheet.cell(2, 1).string('Date: ');
     generalSheet.cell(3, 1).string('Number of trucks: ');
-    generalSheet.cell(4, 1).string('Number of cartons: ');
+    generalSheet.cell(4, 1).string('Number of batches: ');
     generalSheet.cell(5, 1).string('Number of driver-resolvable alerts: ');
     generalSheet.cell(6, 1).string('Number of non-resolvable alerts: ');
     generalSheet.cell(7, 1).string('Total number of alerts: ');
@@ -77,4 +76,47 @@ exports.exportReport = functions.https.onRequest((req, res) => {
 
     const date = Date();
     generalSheet.cell(2, 2).string(date);
+    generalSheet.cell(3, 2).string(trucks.length);  
+    generalSheet.cell(4, 2).string(batches.length);
+
+    alertsSheet.cell(1, 1, 1, 4, true).string('Alerts summary (Sort by time)');
+    alertsSheet.cell(2, 1).string('Date: ');
+    alertsSheet.cell(3, 1).string('Alert ID');
+    alertsSheet.cell(3, 2).string('Time');
+    alertsSheet.cell(3, 3).string('Carton ID');
+    alertsSheet.cell(3, 4).string('Batch ID');
+    alertsSheet.cell(3, 5).string('Truck ID');
+    alertsSheet.cell(3, 6).string('Type of alert');
+    alertsSheet.cell(3, 7).string('Is it resolved?');
+    alertsSheet.cell(3, 8).string('Resolved by');
+    alertsSheet.cell(3, 9).string('Resolved time');
+    alertsSheet.cell(3, 10).string('Environment Requirements');
+    alertsSheet.cell(3, 11).string('Alerts Details');
+
+    alerts.forEach((alert, index) => {
+        const row = index + 4;
+        alertsSheet.cell(row, 1).string(alert.id);
+        alertsSheet.cell(row, 2).string(alert.time);
+        alertsSheet.cell(row, 3).string(alert.cartonID);
+        alertsSheet.cell(row, 4).string(alert.batchID);
+        alertsSheet.cell(row, 5).string(alert.truckID);
+        alertsSheet.cell(row, 6).string(alert.type);
+        alertsSheet.cell(row, 7).string(alert.resolved);
+        alertsSheet.cell(row, 8).string(alert.resolvedBy);
+        alertsSheet.cell(row, 9).string(alert.resolvedTime);
+        alertsSheet.cell(row, 10).string(alert.environmentRequirements);
+        alertsSheet.cell(row, 11).string(alert.details);
+    });
+
+    batchSheet.cell(1, 1).string('Batch Details');
+    batchSheet.cell(2, 1).string('Date: ');
+    batchSheet.cell(3, 1).string('Batch ID');
+    batchSheet.cell(3, 2).string('Time leaving the warehouse');
+    batchSheet.cell(3, 3).string('Truck ID');
+    batchSheet.cell(3, 4).string('Cartons');
+    batchSheet.cell(3, 5).string('Arrival Time');
+    batchSheet.cell(3, 6).string('Shipping Time');
+    batchSheet.cell(3, 7).string('Delivered by');
+    batchSheet.cell(3, 8).string('Environment Requirements');
+    batchSheet.cell(3, 9).string('Any Alerts?');
 });
