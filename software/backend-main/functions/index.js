@@ -2,6 +2,8 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 admin.initializeApp();
 
+const dashboardFCMToken = "fcmToken";
+
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 //
@@ -19,7 +21,6 @@ exports.handleAlerts = functions.database.ref('cargo/{cargoID}').onWrite(async (
     }
 
     const newEntry = change.after.val();
-    const cargoID = context.params.cargoID;
     const batchID = context.params.batchID;
 
     admin.database().ref(`batches/pending/${batchID}`).once('value', (snapshot) => {
@@ -30,7 +31,34 @@ exports.handleAlerts = functions.database.ref('cargo/{cargoID}').onWrite(async (
             temperature = temperature.slice(-3);
 
             if ((temperature < batchObj.tempLowerBound) || (temperature > batchObj.tempUpperBound)) {
-                //TODO: send message to app and dashboard
+                var driverFCMToken = "";
+                var driverID = "";
+                const truckID = batchObj.truckID;
+                admin.database().ref(`trucks/${truckID}`).once('value', (snapshot) => {
+                    const truckObj = snapshot.val();
+                    driverID = truckObj.driverID;
+                }).then(() => {
+                    admin.database().ref(`drivers/${driverID}`).once('value', (snapshot) => {
+                        const driverObj = snapshot.val();
+                        driverFCMToken = driverObj.FCMtoken;
+                    })
+                }).then(() => {
+                    payload = {
+                        notification: {
+                            title: "Temperature Alert",
+                            body: `The temperature is ${temperature}°C`,
+                            // icon: "https://firebasestorage.googleapis.com/v0/b/cargo-tracker-f9f9f.appspot.com/o/logo.png?alt=media&token=f9f9f9f9-f9f9-f9f9-f9f9-f9f9f9f9f9f"
+                        },
+                    }
+                }).then(() => {
+                    admin.messaging().sendToDevice(dashboardFCMToken, payload);
+                }).then(() => {
+                    admin.messaging().sendToDevice(driverFCMToken, payload);
+                }).then(() => {
+                    return null;
+                }).catch((error) => {
+                    console.log(error);
+                });
             }
         }
 
@@ -39,12 +67,46 @@ exports.handleAlerts = functions.database.ref('cargo/{cargoID}').onWrite(async (
             humidity = humidity.slice(-2);
 
             if ((humidity < batchObj.humidityLowerBound) || (humidity < batchObj.humidityUpperBound)) {
-                //TODO: send message to app and dashboard
+                var driverFCMToken = "";
+                var driverID = "";
+                const truckID = batchObj.truckID;
+                admin.database().ref(`trucks/${truckID}`).once('value', (snapshot) => {
+                    const truckObj = snapshot.val();
+                    driverID = truckObj.driverID;
+                }).then(() => {
+                    admin.database().ref(`drivers/${driverID}`).once('value', (snapshot) => {
+                        const driverObj = snapshot.val();
+                        driverFCMToken = driverObj.FCMtoken;
+                    })
+                }).then(() => {
+                    payload = {
+                        notification: {
+                            title: "Humidity Alert",
+                            body: `The temperature is ${temperature}°C`,
+                            // icon: "https://firebasestorage.googleapis.com/v0/b/cargo-tracker-f9f9f.appspot.com/o/logo.png?alt=media&token=f9f9f9f9-f9f9-f9f9-f9f9-f9f9f9f9f9f"
+                        },
+                    }
+                }).then(() => {
+                    admin.messaging().sendToDevice(dashboardFCMToken, payload);
+                }).then(() => {
+                    admin.messaging().sendToDevice(driverFCMToken, payload);
+                }).then(() => {
+                    return null;
+                }).catch((error) => {
+                    console.log(error);
+                });
             }
         }
 
         if ((batchObj.isFragile) && newEntry.KY002.Box_shocked) {
-            //TODO: send message to dashboard
+            payload = {
+                notification: {
+                    title: "Fragile Cargo Alert",
+                    body: `The cargo is fragile`,
+                    // icon: "https://firebasestorage.googleapis.com/v0/b/cargo-tracker-f9f9f.appspot.com/o/logo.png?alt=media&token=f9f9f9f9-f9f9-f9f9-f9f9-f9f9f9f9f9f"
+                },
+            }
+            admin.messaging().sendToDevice(dashboardFCMToken, payload);
         }
 
         if (batchObj.isUpright) {
@@ -54,6 +116,19 @@ exports.handleAlerts = functions.database.ref('cargo/{cargoID}').onWrite(async (
 
         const opened = newEntry.Photoresistor.Box_opened;
     });
+});
+
+exports.checkDelivered = functions.https.onRequest((req, res) => {
+    const batchID = req.query.batchID;
+    admin.database().ref(`batches/${batchID}`).once('value', (snapshot) => {
+        const batchObj = snapshot.val();
+        const address = batchObj.address;
+        
+    });
+});
+
+exports.runSignOff = functions.https.onRequest((req, res) => {
+    const batchID = req.query.batchID;
 });
 
 exports.exportReport = functions.https.onRequest((req, res) => {
@@ -73,7 +148,7 @@ exports.exportReport = functions.https.onRequest((req, res) => {
     var numAlertsResolved = 0;
 
     const truckRef = admin.database().ref('trucks');
-    const batchRef = admin.database().ref('batches/delivered');
+    const batchRef = admin.database().ref('batches');
     const alertRef = admin.database().ref('alerts/resolved');
     truckRef.once('value', (snapshot) => {
         const values = snapshot.val();
