@@ -178,7 +178,13 @@ exports.checkDelivered = functions.https.onRequest((req, res) => {
                     }
                     admin.messaging().sendToDevice(driverFCMToken, payload);
                     admin.messaging().sendToDevice(dashboardFCMToken, payload);
+                    return {
+                        deliveredCheck: false;
+                    }
                 })
+            }
+            return {
+                deliveredCheck: true;
             }
         })
     ).catch(
@@ -188,6 +194,22 @@ exports.checkDelivered = functions.https.onRequest((req, res) => {
 
 exports.runSignOff = functions.https.onRequest((req, res) => {
     const batchID = req.query.batchID;
+    const signature = req.query.signature;
+
+    if (signature) {
+        admin.database().ref(`batches/${batchID}`).update({
+            'deliveryStatus': 'delivered',
+            'signature': signature
+        }).catch(
+            error => console.log(error);
+        )
+        return {
+            signOffSuccessful: true;
+        }
+    }
+    return {
+        signOffSuccessful: false;
+    }
 });
 
 exports.exportReport = functions.https.onRequest((req, res) => {
