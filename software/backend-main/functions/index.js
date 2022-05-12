@@ -179,16 +179,17 @@ exports.checkDelivered = functions.https.onRequest((req, res) => {
                     admin.messaging().sendToDevice(driverFCMToken, payload);
                     admin.messaging().sendToDevice(dashboardFCMToken, payload);
                     return {
-                        deliveredCheck: false;
+                        deliveredCheck: false
                     }
                 })
             }
             return {
-                deliveredCheck: true;
+                deliveredCheck: true
             }
         })
-    ).catch(
-        error => console.log(error);
+    ).catch((error) => {
+            console.log(error);
+        }
     );
 });
 
@@ -200,15 +201,15 @@ exports.runSignOff = functions.https.onRequest((req, res) => {
         admin.database().ref(`batches/${batchID}`).update({
             'deliveryStatus': 'delivered',
             'signature': signature
-        }).catch(
-            error => console.log(error);
-        )
+        }).catch((error) => {
+            console.log(error);
+        })
         return {
-            signOffSuccessful: true;
+            signOffSuccessful: true
         }
     }
     return {
-        signOffSuccessful: false;
+        signOffSuccessful: false
     }
 });
 
