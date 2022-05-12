@@ -147,7 +147,7 @@ exports.checkDelivered = functions.https.onRequest((req, res) => {
     }
     var currLocation = {
         lat: 0.0,
-        lon, 0.0
+        lon: 0.0
     };
     admin.database().ref(`trucks/${truckID}`).once('value', (snapshot) => {
         const truckObj = snapshot.val();
@@ -160,7 +160,7 @@ exports.checkDelivered = functions.https.onRequest((req, res) => {
         const batchObj = snapshot.val();
         const address = batchObj.address;
     })).then(
-        fetch(`https://api.tomtom.com/search/2/search/${address}.json?key=Pf3TNIqZkfJZHAuYLSazmpLqMe24AWDp`)
+        fetch(`https://api.tomtom.com/search/2/search/${encodeURIComponent(address)}.json?key=Pf3TNIqZkfJZHAuYLSazmpLqMe24AWDp`)
         .then(response => response.json())
         .then(data => {
             const destination = data.results[0].position;
