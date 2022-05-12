@@ -65,7 +65,6 @@ const BatchesOverview = () => {
                 isUpright: rowArr[10] === "Yes",
                 cargo: [],
                 deliveryStatus: "pending",
-                alertStatus: "none"
             }
             console.log('resBatch: ', resBatch);
 
@@ -144,7 +143,6 @@ const BatchesOverview = () => {
                                 { field: 'id', headerName: 'Batch ID' },
                                 { field: 'address', headerName: 'Address' },
                                 { field: 'deliveryStatus', headerName: 'Delivery Status' },
-                                { field: 'alertStatus', headerName: 'Alert Status' },
                                 { field: 'requiresTemp', headerName: 'Has Temperature Requirements' },
                                 { field: 'requiresHumidity', headerName: 'Has Humidity Requirements' },
                                 { field: 'tempLowerBound', headerName: 'Temperature Lower Bound' },

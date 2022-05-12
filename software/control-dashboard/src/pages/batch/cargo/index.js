@@ -3,6 +3,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import React, { useEffect, useState } from 'react';
 import { withRouter, useHistory, useRouteMatch, Route, Switch } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
+import { toast } from 'react-toastify';
 
 import { db } from '../../../config/my-firebase';
 import { ref, push, set, get } from 'firebase/database';
@@ -99,6 +100,7 @@ const BatchInfo = () => {
             isFragile: csvData[6] === "Yes",
             isUpright: csvData[7] === "Yes",
             cargo: [],
+            deliveryStatus: "pending"
         }
 
         setUpload(false);
@@ -134,8 +136,16 @@ const BatchInfo = () => {
     const handlePost = () => {
         const newRef = batchID ? ref(db, `batches/${batchID}`) : ref(db, `batches/${batch.id}`);
         batch.deliveryStatus = "pending";
-        batch.alertStatus = "none";
         set(newRef, batch);
+        toast.success(`Batch ${batch.id} added`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+        });
         history.goBack();
     }
     
