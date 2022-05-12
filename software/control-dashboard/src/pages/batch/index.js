@@ -108,6 +108,26 @@ const BatchesOverview = () => {
 
     useEffect(() => {
         fetchData().catch((error) => console.log(error));
+
+        const batchesListenerRef = ref(db, 'batches');
+        onValue(batchesListenerRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const obj = snapshot.val();
+                console.log(obj);
+                const arrKeys = Object.keys(obj);
+                const objArr = Object.values(obj);
+                // objArr.shift();
+                const batches = objArr;
+                console.log(batches);
+                const batchKeys = Object.keys(batches);
+                const batchValues = batchKeys.map((key) => batches[key]);
+                setBatches(batchValues);
+            }
+        });
+
+        return () => {
+            batchesListenerRef.off();
+        }
     }, []);
 
     return (
@@ -149,6 +169,8 @@ const BatchesOverview = () => {
                                 { field: 'tempUpperBound', headerName: 'Temperature Upper Bound' },
                                 { field: 'humidityLowerBound', headerName: 'Humidity Lower Bound' },
                                 { field: 'humidityUpperBound', headerName: 'Humidity Upper Bound' },
+                                { field: 'isFragile', headerName: 'Is Fragile' },
+                                { field: 'isUpright', headerName: 'Needs to be Upright' },
                             ]}
                             rows={batches}
                             onRowDoubleClick={(row) => {
