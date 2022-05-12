@@ -130,6 +130,21 @@ exports.handleAlerts = functions.database.ref('batches/{batchID}/cargo/{cargoID}
 exports.checkDelivered = functions.https.onRequest((req, res) => {
     const truckID = req.query.truckID;
     const batchID = req.query.batchID;
+    const calculateDistance = (curr, dest) => {
+        let lon1 = curr.lon * Math.PI / 180;
+        let lon2 = dest.lon * Math.PI / 180;
+        let lat1 = curr.lat * Math.PI / 180;
+        let lat2 = dest.lat * Math.PI / 180;
+
+        let dlon = lon2 - lon1;
+        let dlat = lat2 - lat1;
+        let a = Math.pow(Math.sin(dlat / 2), 2)
+                    + Math.cos(lat1) * Math.cos(lat2)
+                    * Math.pow(Math.sin(dlon / 2), 2);
+        let c = 2 * Math.asin(Math.sqrt(a));
+        let r = 6371;
+        return (c * r);
+    }
     var currLocation = {
         lat: 0.0,
         lon, 0.0
@@ -144,7 +159,31 @@ exports.checkDelivered = functions.https.onRequest((req, res) => {
     admin.database().ref(`batches/${batchID}`).once('value', (snapshot) => {
         const batchObj = snapshot.val();
         const address = batchObj.address;
-    }))
+    })).then(
+        fetch(`https://api.tomtom.com/search/2/search/${address}.json?key=Pf3TNIqZkfJZHAuYLSazmpLqMe24AWDp`)
+        .then(response => response.json())
+        .then(data => {
+            const destination = data.results[0].position;
+            const distance = calculateDistance(currLocation, destination);
+            if (distance > 0.1) {
+                //TODO: Send message to app and dashboard
+                admin.database().ref(`drivers/${truckObj.driverID}`).once('value' , (snapshot) => {
+                    const driverObj = snapshot.val();
+                    const driverFCMToken = driverObj.FCMtoken;
+                    const payload = {
+                        notification: {
+                            title: `Wrong location for batch ${batchID}!`,
+                            body: `You are ${distance} away from the actual destination.`
+                        }
+                    }
+                    admin.messaging().sendToDevice(driverFCMToken, payload);
+                    admin.messaging().sendToDevice(dashboardFCMToken, payload);
+                })
+            }
+        })
+    ).catch(
+        error => console.log(error);
+    );
 });
 
 exports.runSignOff = functions.https.onRequest((req, res) => {
