@@ -3,7 +3,8 @@ import { withRouter, Switch, Route, useRouteMatch, useHistory } from 'react-rout
 import { TextField, Button, Typography, Grid, ButtonBase } from '@mui/material';
 import { Container } from 'react-bootstrap';
 import { DataGrid } from '@mui/x-data-grid';
-import { getDatabase, ref, onValue, onChildAdded, get, child } from "firebase/database";
+import { getDatabase, ref, onValue, onChildAdded, get, child, set } from "firebase/database";
+import { toast } from 'react-toastify';
 
 import Header from '../../components/Header';
 import BatchInfo from './cargo/index';
@@ -14,7 +15,10 @@ import { Link } from 'react-router-dom';
 const BatchesOverview = () => {
     const { path, url } = useRouteMatch();
     const [batches, setBatches] = useState([]);
+    const [file, setFile] = useState();
+    const [upload, setUpload] = useState(false);
     const history = useHistory();
+    const fileReader = new FileReader();
 
     const fetchData = async () => {
         const batchRef = ref(db, 'batches');
@@ -34,6 +38,75 @@ const BatchesOverview = () => {
         })
     }
 
+    const parseCSV = (string) => {
+        var csvRows = string.split("\n");
+        csvRows = csvRows.slice(1);
+        console.log('csvRows: ', csvRows);
+
+        csvRows.forEach(function (row) {
+            if (row.charAt(row.length - 1) === '\r') {
+                console.log("\\r detected");
+                row = row.slice(0, row.length - 1);
+                console.log("new row: ", row);
+            }
+            const rowArr = row.split(",");
+            console.log('rowArr: ', rowArr);
+            
+            const resBatch = {
+                id: rowArr[0],
+                address: rowArr[1],
+                requiresTemp: rowArr[3] === "Yes",
+                requiresHumidity: rowArr[4] === "Yes",
+                tempLowerBound: !isNaN(parseInt(rowArr[5])) ? parseInt(rowArr[5]) : 0,
+                tempUpperBound: !isNaN(parseInt(rowArr[6])) ? parseInt(rowArr[6]) : 0,
+                humidityLowerBound: !isNaN(parseInt(rowArr[7])) ? parseInt(rowArr[7]) : 0,
+                humidityUpperBound: !isNaN(parseInt(rowArr[8])) ? parseInt(rowArr[8]) : 0,
+                isFragile: rowArr[9] === "Yes",
+                isUpright: rowArr[10] === "Yes",
+                cargo: [],
+                deliveryStatus: "pending",
+                alertStatus: "none"
+            }
+            console.log('resBatch: ', resBatch);
+
+            const newRef = ref(db, `batches/${resBatch.id}`);
+            set(newRef, resBatch);
+
+            toast.success(`Batch ${resBatch.id} added`, {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
+        })
+
+
+        setUpload(false);
+    }
+
+    const CSVOnChange = (e) => {
+        setFile(e.target.files[0]);
+        // loadCSV(e);
+    }
+
+    const loadCSV = (e) => {
+        e.preventDefault();
+
+        if (file) {
+            console.log("file found");
+            fileReader.onload = function (event) {
+                console.log("file reader loaded");
+                const csvOutput = event.target.result;
+                parseCSV(csvOutput);
+            }
+            fileReader.readAsText(file);
+        }
+
+    }
+
     useEffect(() => {
         fetchData().catch((error) => console.log(error));
     }, []);
@@ -46,6 +119,25 @@ const BatchesOverview = () => {
                     <Button onClick={() => history.push(`${url}/batch`)}>
                         Add New Batch
                     </Button>
+                    <Button onClick={() => setUpload(!upload)}>
+                        Upload CSV
+                    </Button>
+                    { upload ?
+                        <div>
+
+                            <input
+                                type="file"
+                                accept=".csv"
+                                onChange={CSVOnChange}
+                            />
+                            <Button
+                                onClick={e => loadCSV(e)}
+                            >
+                                Submit
+                            </Button>
+                        </div>
+                        : null
+                    }
                     <div style={{ height: 500 }}>
                         <DataGrid 
                             columns={[
