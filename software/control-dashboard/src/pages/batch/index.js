@@ -17,7 +17,7 @@ const BatchesOverview = () => {
     const history = useHistory();
 
     const fetchData = async () => {
-        const batchRef = ref(db, 'batches/pending');
+        const batchRef = ref(db, 'batches');
         get(batchRef).then((snapshot) => {
             if (snapshot.exists()) {
                 const obj = snapshot.val();
@@ -26,10 +26,6 @@ const BatchesOverview = () => {
                 const objArr = Object.values(obj);
                 // objArr.shift();
                 const batches = objArr;
-                batches.forEach((batch, index) => {
-                    batch['id'] = arrKeys[index];
-                    batch['batchID'] = arrKeys[index];
-                })
                 console.log(batches);
                 const batchKeys = Object.keys(batches);
                 const batchValues = batchKeys.map((key) => batches[key]);
@@ -53,8 +49,10 @@ const BatchesOverview = () => {
                     <div style={{ height: 500 }}>
                         <DataGrid 
                             columns={[
-                                { field: 'batchID', headerName: 'Batch ID' },
+                                { field: 'id', headerName: 'Batch ID' },
                                 { field: 'address', headerName: 'Address' },
+                                { field: 'deliveryStatus', headerName: 'Delivery Status' },
+                                { field: 'alertStatus', headerName: 'Alert Status' },
                                 { field: 'requiresTemp', headerName: 'Has Temperature Requirements' },
                                 { field: 'requiresHumidity', headerName: 'Has Humidity Requirements' },
                                 { field: 'tempLowerBound', headerName: 'Temperature Lower Bound' },

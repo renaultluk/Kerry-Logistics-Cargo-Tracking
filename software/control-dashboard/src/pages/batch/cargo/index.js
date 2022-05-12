@@ -20,7 +20,7 @@ const BatchInfo = () => {
     const { path, url } = useRouteMatch();
 
     const defaultBatch = {
-        batchID: "",
+        id: "",
         address: "",
         requiresTemp: false,
         requiresHumidity: false,
@@ -47,7 +47,7 @@ const BatchInfo = () => {
     // const [cargo, setCargo] = useState([]);
 
     const fetchData = async () => {
-        const batchRef = ref(db, `batches/pending/${batchID}`);
+        const batchRef = ref(db, `batches/${batchID}`);
         get(batchRef).then((snapshot) => {
             if (snapshot.exists()) {
                 const obj = snapshot.val();
@@ -88,7 +88,7 @@ const BatchInfo = () => {
         })
 
         const resBatch = {
-            batchID: csvData[0],
+            id: csvData[0],
             address: csvData[1],
             requiresTemp: !(csvData[2] === "" || csvData[3] === ""),
             requiresHumidity: !(csvData[4] === "" || csvData[5] === ""),
@@ -132,9 +132,9 @@ const BatchInfo = () => {
     }
 
     const handlePost = () => {
-        const batchRef = ref(db, `batches/pending`);
-        const newRef = batchID ? ref(db, `batches/pending/${batchID}`) : push(batchRef);
-        batch.batchID = newRef.key;
+        const newRef = batchID ? ref(db, `batches/${batchID}`) : ref(db, `batches/${batch.id}`);
+        batch.deliveryStatus = "pending";
+        batch.alertStatus = "none";
         set(newRef, batch);
         history.goBack();
     }
@@ -156,8 +156,8 @@ const BatchInfo = () => {
                                     label="Batch ID"
                                     control={
                                         <TextField 
-                                            value={batch.batchID} 
-                                            onChange={(e) => setBatch({...batch, batchID: e.target.value})} 
+                                            value={batch.id} 
+                                            onChange={(e) => setBatch({...batch, id: e.target.value})} 
                                         />
                                     }
                                 />
