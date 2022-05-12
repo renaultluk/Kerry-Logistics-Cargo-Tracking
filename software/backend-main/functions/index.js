@@ -11,7 +11,7 @@ const dashboardFCMToken = "fcmToken";
 //   functions.logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
-exports.handleAlerts = functions.database.ref('cargo/{cargoID}').onWrite(async (change, context) => {
+exports.handleAlerts = functions.database.ref('batches/{batchID}/cargo/{cargoID}').onWrite(async (change, context) => {
     if (!change.before.exists()) {
         return null;
     }
@@ -22,8 +22,9 @@ exports.handleAlerts = functions.database.ref('cargo/{cargoID}').onWrite(async (
 
     const newEntry = change.after.val();
     const batchID = context.params.batchID;
+    const cargoID = context.params.cargoID;
 
-    admin.database().ref(`batches/pending/${batchID}`).once('value', (snapshot) => {
+    admin.database().ref(`batches/${batchID}`).once('value', (snapshot) => {
         const batchObj = snapshot.val();
 
         if (batchObj.requiresTemp) {
@@ -33,6 +34,15 @@ exports.handleAlerts = functions.database.ref('cargo/{cargoID}').onWrite(async (
             if ((temperature < batchObj.tempLowerBound) || (temperature > batchObj.tempUpperBound)) {
                 var driverFCMToken = "";
                 var driverID = "";
+                const date = Date();
+                var alertObj = {
+                    time: date,
+                    cargoID: cargoID,
+                    batchID: batchID,
+                    truckID: batchObj.truckID,
+                    type: "temperature",
+                    resolved: false,
+                };
                 const truckID = batchObj.truckID;
                 admin.database().ref(`trucks/${truckID}`).once('value', (snapshot) => {
                     const truckObj = snapshot.val();
@@ -47,15 +57,15 @@ exports.handleAlerts = functions.database.ref('cargo/{cargoID}').onWrite(async (
                         notification: {
                             title: "Temperature Alert",
                             body: `The temperature is ${temperature}°C`,
-                            // icon: "https://firebasestorage.googleapis.com/v0/b/cargo-tracker-f9f9f.appspot.com/o/logo.png?alt=media&token=f9f9f9f9-f9f9-f9f9-f9f9-f9f9f9f9f9f"
                         },
+                        data: alertObj
                     }
                 }).then(() => {
                     admin.messaging().sendToDevice(dashboardFCMToken, payload);
                 }).then(() => {
                     admin.messaging().sendToDevice(driverFCMToken, payload);
                 }).then(() => {
-                    return null;
+                    return admin.database().ref('alerts').push(alertObj);
                 }).catch((error) => {
                     console.log(error);
                 });
@@ -66,7 +76,7 @@ exports.handleAlerts = functions.database.ref('cargo/{cargoID}').onWrite(async (
             const humidity = newEntry.BME280.Humidity;
             humidity = humidity.slice(-2);
 
-            if ((humidity < batchObj.humidityLowerBound) || (humidity < batchObj.humidityUpperBound)) {
+            if ((humidity < batchObj.humidityLowerBound) || (humidity > batchObj.humidityUpperBound)) {
                 var driverFCMToken = "";
                 var driverID = "";
                 const truckID = batchObj.truckID;
@@ -82,8 +92,7 @@ exports.handleAlerts = functions.database.ref('cargo/{cargoID}').onWrite(async (
                     payload = {
                         notification: {
                             title: "Humidity Alert",
-                            body: `The temperature is ${temperature}°C`,
-                            // icon: "https://firebasestorage.googleapis.com/v0/b/cargo-tracker-f9f9f.appspot.com/o/logo.png?alt=media&token=f9f9f9f9-f9f9-f9f9-f9f9-f9f9f9f9f9f"
+                            body: `The humidity is ${temperature}°C`,
                         },
                     }
                 }).then(() => {
@@ -119,12 +128,23 @@ exports.handleAlerts = functions.database.ref('cargo/{cargoID}').onWrite(async (
 });
 
 exports.checkDelivered = functions.https.onRequest((req, res) => {
+    const truckID = req.query.truckID;
     const batchID = req.query.batchID;
+    var currLocation = {
+        lat: 0.0,
+        lon, 0.0
+    };
+    admin.database().ref(`trucks/${truckID}`).once('value', (snapshot) => {
+        const truckObj = snapshot.val();
+        const locationStr = truckObj.location;
+        const locationArr = locationStr.split(',');
+        currLocation.lat = parseFloat(locationArr[0]);
+        currLocation.lon = parseFloat(locationArr[1]);
+    }).then(
     admin.database().ref(`batches/${batchID}`).once('value', (snapshot) => {
         const batchObj = snapshot.val();
         const address = batchObj.address;
-        
-    });
+    }))
 });
 
 exports.runSignOff = functions.https.onRequest((req, res) => {
