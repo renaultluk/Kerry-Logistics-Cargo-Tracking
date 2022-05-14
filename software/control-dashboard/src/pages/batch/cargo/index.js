@@ -57,10 +57,12 @@ const BatchInfo = () => {
                     obj['cargo'] = [];
                 } else {
                     obj['cargo'] = Object.values(obj['cargo']);
-                    obj['cargo'].forEach((cargo) => {
-                        cargo['id'] = cargo['cargoID'];
+                    obj['cargo'].forEach((cargo, index) => {
+                        cargo['cargoID'] = cargo['id'];
+                        cargo['id'] = index;
                     })
                 }
+                console.log(obj);
                 setBatch(obj);
             }
         })

@@ -1,4 +1,5 @@
 import { Button, FormGroup, FormControlLabel, Checkbox, Typography, TextField, FormLabel } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
 import React, { useState, useEffect } from 'react';
 import { withRouter, useHistory } from 'react-router-dom';
 import useQuery from '../../../utils/useQuery';
@@ -12,21 +13,30 @@ const CargoInfo = () => {
     const cargoID = query.get('cargoID');
     const batchID = query.get('batchID');
     
-    const defaultCargo = {
-        cargoID: "",
-        isFragile: false,
-        isUpright: false,
-    }
+    // const defaultCargo = {
+    //     cargoID: "",
+    //     isFragile: false,
+    //     isUpright: false,
+    // }
 
-    const [cargo, setCargo] = useState(defaultCargo);
+    const [cargo, setCargo] = useState({
+        id: "",
+        alertStatus: []
+    });
 
     const fetchData = async () => {
-        const cargoRef = ref(db, `cargo/pending/${cargoID}`);
+        const cargoRef = ref(db, `batches/${batchID}/cargo/${cargoID}`);
         get(cargoRef).then((snapshot) => {
             if (snapshot.exists()) {
                 const obj = snapshot.val();
                 console.log(obj);
-                setCargo(obj);
+                var alertStatus = obj.alertStatus;
+                alertStatus = Object.values(alertStatus);
+                alertStatus.forEach((alert, index) => {
+                    alert['id'] = index;
+                })
+                console.log(alertStatus);
+                setCargo({ ...obj, alertStatus: alertStatus });
             }
         })
     }
@@ -56,14 +66,14 @@ const CargoInfo = () => {
     return (
         <>
             <Typography variant="h2">Cargo Info</Typography>
-            <FormGroup>
-                {/* <TextField
+            {/* <FormGroup>
+                <TextField
                     onChange={(e) => setCargo({ ...cargo, cargoID: e.target.value })}
                     label="Cargo ID"
                     variant="outlined"
                     required
                     defaultValue={cargo.cargoID}
-                /> */}
+                />
                 <FormLabel>
                     {
                         cargoID ? `Batch ${batchID} >> Cargo ID: ${cargoID}` : 
@@ -89,7 +99,24 @@ const CargoInfo = () => {
                 >
                     Submit
                 </Button>
-            </FormGroup>
+            </FormGroup> */}
+            <Typography>Carton ID: {cargoID}</Typography>
+            {
+                cargo.alertStatus.length > 0 ?
+                <div style={{ height: '500px' }}>
+                    <DataGrid
+                        rows={cargo.alertStatus}
+                        columns={[
+                            { field: 'time', title: 'Time' },
+                            { field: 'BME280', title: 'BME280' },
+                            { field: 'KY002', title: 'KY002' },
+                            { field: 'MPU6050', title: 'MPU6050' },
+                            { field: 'Photoresistor', title: 'Photoresistor' },
+                        ]}
+                    />
+                </div>
+                : null
+            }
         </>
     );
 }
