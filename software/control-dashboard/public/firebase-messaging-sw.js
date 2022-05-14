@@ -1,6 +1,7 @@
 // Scripts for firebase and firebase messaging
 importScripts("https://www.gstatic.com/firebasejs/8.2.0/firebase-app.js");
 importScripts("https://www.gstatic.com/firebasejs/8.2.0/firebase-messaging.js");
+import { toast } from "react-toastify";
 
 // Initialize the Firebase app in the service worker by passing the generated config
 const firebaseConfig = {
@@ -28,4 +29,6 @@ messaging.onBackgroundMessage(function(payload) {
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
+
+  toast.info(payload.notification.body);
 });
