@@ -4,8 +4,9 @@ import { TextField, Button, Typography, Grid, Paper } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { toast } from 'react-toastify';
 
-import { db } from '../config/my-firebase';
+import { db, functions } from '../config/my-firebase';
 import { ref, onValue, onChildAdded, get, child } from "firebase/database";
+import { httpsCallable } from 'firebase/functions';
 
 // import ReactPDF from '@react-pdf/renderer';
 // import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
@@ -75,13 +76,17 @@ const AlertsSummary = () => {
             }
         })
 
-        return () => alertListenerRef.off();
+        // return () => alertListenerRef.off();
     }, [])
 
-    const exportReport = () => {
-        const d = new Date();
-        const date = d.toLocaleDateString();
+    const exportReport = async () => {
+        // const d = new Date();
+        // const date = d.toLocaleDateString();
         // ReactPDF.render(<Report />, `${__dirname}/report-${date}.pdf`);
+        const callReport = httpsCallable(functions, 'exportReport');
+        callReport().then((result) => {
+            console.log(result);
+        })
     }
     
     return (
@@ -89,7 +94,7 @@ const AlertsSummary = () => {
             <Grid container spacing={3}>
                 <Grid item xs={12}>
                     <Typography variant="h2">Delivery Status</Typography>
-                    {/* <Button onClick={exportReport}>Export Daily Report</Button> */}
+                    <Button onClick={exportReport}>Export Daily Report</Button>
                     {/* <PDFDownloadLink document={<Report />} fileName="report.pdf">
                         {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'Export Daily Report')}
                     </PDFDownloadLink> */}
