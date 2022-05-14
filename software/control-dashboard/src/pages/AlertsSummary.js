@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 
 import { db, functions } from '../config/my-firebase';
 import { ref, onValue, onChildAdded, get, child } from "firebase/database";
-import { httpsCallable } from 'firebase/functions';
+import { httpsCallable, connectFunctionsEmulator } from 'firebase/functions';
 
 // import ReactPDF from '@react-pdf/renderer';
 // import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
@@ -57,11 +57,11 @@ const AlertsSummary = () => {
         onChildAdded(alertListenerRef, (snapshot) => {
             if (snapshot.exists()) {
                 const obj = snapshot.val();
-                obj.shift();
+                // obj.shift();
                 const alertValues = obj;
-                alertValues.forEach((alert, index) => {
-                    alert['id'] = index;
-                })
+                // alertValues.forEach((alert, index) => {
+                //     alert['id'] = index;
+                // })
                 toast.error("New issue", {
                     position: "top-right",
                     autoClose: 5000,
@@ -83,6 +83,7 @@ const AlertsSummary = () => {
         // const d = new Date();
         // const date = d.toLocaleDateString();
         // ReactPDF.render(<Report />, `${__dirname}/report-${date}.pdf`);
+        connectFunctionsEmulator(functions, "localhost", 5001);
         const callReport = httpsCallable(functions, 'exportReport');
         callReport().then((result) => {
             console.log(result);

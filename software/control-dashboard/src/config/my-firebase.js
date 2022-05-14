@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
+import { getMessaging } from "firebase/messaging";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -23,3 +24,4 @@ export const app = initializeApp(firebaseConfig);
 export const db = getDatabase(app);
 export const functions = getFunctions(app);
 connectFunctionsEmulator(functions, "localhost", 5001);
+export const messaging = getMessaging(app);

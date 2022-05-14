@@ -2,7 +2,7 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 admin.initializeApp();
 
-const dashboardFCMToken = "fcmToken";
+const dashboardFCMToken = "";
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -61,9 +61,14 @@ exports.handleAlerts = functions.database.ref('batches/{batchID}/cargo/{cargoID}
                         data: alertObj
                     }
                 }).then(() => {
-                    admin.messaging().sendToDevice(dashboardFCMToken, payload);
+                    const dashboardFCMRef = admin.database().ref('dashboardFCMToken');
+                    dashboardFCMRef.once('value', (snapshot) => {
+                        dashboardFCMToken = snapshot.val();
+                    }).then(() => {
+                        admin.messaging().sendToDevice(dashboardFCMToken, payload);
+                    })
                 }).then(() => {
-                    admin.messaging().sendToDevice(driverFCMToken, payload);
+                    admin.messaging().sendToDevice(dashboardFCMToken, payload);
                 }).then(() => {
                     return admin.database().ref('alerts').push(alertObj);
                 }).catch((error) => {
@@ -96,7 +101,12 @@ exports.handleAlerts = functions.database.ref('batches/{batchID}/cargo/{cargoID}
                         },
                     }
                 }).then(() => {
-                    admin.messaging().sendToDevice(dashboardFCMToken, payload);
+                    const dashboardFCMRef = admin.database().ref('dashboardFCMToken');
+                    dashboardFCMRef.once('value', (snapshot) => {
+                        dashboardFCMToken = snapshot.val();
+                    }).then(() => {
+                        admin.messaging().sendToDevice(dashboardFCMToken, payload);
+                    })
                 }).then(() => {
                     admin.messaging().sendToDevice(driverFCMToken, payload);
                 }).then(() => {
@@ -115,7 +125,12 @@ exports.handleAlerts = functions.database.ref('batches/{batchID}/cargo/{cargoID}
                     // icon: "https://firebasestorage.googleapis.com/v0/b/cargo-tracker-f9f9f.appspot.com/o/logo.png?alt=media&token=f9f9f9f9-f9f9-f9f9-f9f9-f9f9f9f9f9f"
                 },
             }
-            admin.messaging().sendToDevice(dashboardFCMToken, payload);
+            const dashboardFCMRef = admin.database().ref('dashboardFCMToken');
+            dashboardFCMRef.once('value', (snapshot) => {
+                dashboardFCMToken = snapshot.val();
+            }).then(() => {
+                admin.messaging().sendToDevice(dashboardFCMToken, payload);
+            })
         }
 
         if (batchObj.isUpright) {
@@ -177,7 +192,12 @@ exports.checkDelivered = functions.https.onRequest((req, res) => {
                         }
                     }
                     admin.messaging().sendToDevice(driverFCMToken, payload);
-                    admin.messaging().sendToDevice(dashboardFCMToken, payload);
+                    const dashboardFCMRef = admin.database().ref('dashboardFCMToken');
+                    dashboardFCMRef.once('value', (snapshot) => {
+                        dashboardFCMToken = snapshot.val();
+                    }).then(() => {
+                        admin.messaging().sendToDevice(dashboardFCMToken, payload);
+                    })
                     // return {
                     //     deliveredCheck: false
                     // }

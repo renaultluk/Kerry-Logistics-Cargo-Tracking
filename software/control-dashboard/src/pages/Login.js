@@ -3,6 +3,10 @@ import { withRouter, useHistory } from "react-router-dom";
 import { TextField, Button, Typography } from "@mui/material";
 import { Container } from "react-bootstrap";
 
+import { db, messaging } from "../config/my-firebase";
+import { getToken } from "firebase/messaging";
+import { ref, set } from "firebase/database";
+
 import logo from "../assets/logo.svg";
 import styles from "../styles/Login.css";
 
@@ -22,7 +26,20 @@ const Login = () => {
     //     // this.checkLogin();
     // }
 
-    const checkLogin = () => { 
+    const checkLogin = async () => { 
+        getToken(messaging, {vapidKey: "BE5gM-IB9yqZQrO6J9Xztymin5Dk5Xy2Ha7ow_wfnT22WmXCDRLjOVZ5gil3XElb_rUMCXxnhvdCYWs65lJTlB0"}).then(
+            (token) => {
+                if (token) {
+                    console.log(token);
+                    const FCMRef = ref(db, 'dashboardFCMToken');
+                    set(FCMRef, token);
+                } else {
+                    console.log('No Instance ID token available. Request permission to generate one.');
+                }
+            }
+        ).catch((error) => {
+            console.log(error);
+        });
         history.replace("/main");
     }
 
