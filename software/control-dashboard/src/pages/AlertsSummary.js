@@ -83,7 +83,7 @@ const AlertsSummary = () => {
         // const d = new Date();
         // const date = d.toLocaleDateString();
         // ReactPDF.render(<Report />, `${__dirname}/report-${date}.pdf`);
-        connectFunctionsEmulator(functions, "localhost", 5001);
+        // connectFunctionsEmulator(functions, "localhost", 5001);
         const callReport = httpsCallable(functions, 'exportReport');
         callReport().then((result) => {
             console.log(result);

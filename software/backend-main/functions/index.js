@@ -2,7 +2,7 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 admin.initializeApp();
 
-const dashboardFCMToken = "";
+const dashboardFCMToken = "cPzL1SgzCNkqiE_6I-E3hN:APA91bF8pBEDkbdxO6PPmXSP8vQQUuhDukjtQUdDNwuYFaHZr81UtiXqC1-fZ0jb-QJXwWP0TPt4fwTTFJ25BkGeqS5yYUD3fkCfWrm4U5c-4ZgvzZBozFN7Utg8bDKAnOWobtcybouf";
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -142,7 +142,7 @@ exports.handleAlerts = functions.database.ref('batches/{batchID}/cargo/{cargoID}
     });
 });
 
-exports.checkDelivered = functions.https.onRequest((req, res) => {
+exports.checkDelivered = functions.https.onCall((req, res) => {
     const truckID = req.query.truckID;
     const batchID = req.query.batchID;
     const calculateDistance = (curr, dest) => {
@@ -198,20 +198,14 @@ exports.checkDelivered = functions.https.onRequest((req, res) => {
                     }).then(() => {
                         admin.messaging().sendToDevice(dashboardFCMToken, payload);
                     })
-                    // return {
-                    //     deliveredCheck: false
-                    // }
-                    res.send({
+                    return {
                         deliveredCheck: false
-                    })
+                    }
                 })
             }
-            // return {
-            //     deliveredCheck: true
-            // }
-            res.send({
+            return {
                 deliveredCheck: true
-            })
+            }
         })
     ).catch((error) => {
             console.log(error);
@@ -219,33 +213,29 @@ exports.checkDelivered = functions.https.onRequest((req, res) => {
     );
 });
 
-exports.runSignOff = functions.https.onRequest((req, res) => {
-    const batchID = req.query.batchID;
-    const signature = req.query.signature;
+exports.runSignOff = functions.https.onCall((req, res) => {
+    const batchID = req.batchID;
 
-    if (signature) {
-        admin.database().ref(`batches/${batchID}`).update({
-            'deliveryStatus': 'delivered',
-            'signature': signature
-        }).catch((error) => {
-            console.log(error);
-        })
-        // return {
-        //     signOffSuccessful: true
-        // }
-        res.send({
-            signOffSuccessful: true
-        })
-    }
-    // return {
-    //     signOffSuccessful: false
-    // }
-    res.send({
-        signOffSuccessful: false
+    admin.database().ref(`batches/${batchID}`).update({
+        'deliveryStatus': 'delivered',
+    }).catch((error) => {
+        console.log(error);
     })
+    // res.send({
+    //     status: 'success',
+    //     data: {
+    //         signOffSuccessful: true
+    //     }
+    // });
+    return {
+        status: 'success',
+        data: {
+            signOffSuccessful: true
+        }
+    };
 });
 
-exports.exportReport = functions.https.onRequest((req, res) => {
+exports.exportReport = functions.https.onCall( async (req, res) => {
     // const xl = require('excel4node');
 
     // const wb = new xl.Workbook();
@@ -254,109 +244,84 @@ exports.exportReport = functions.https.onRequest((req, res) => {
     // const alertsSheet = wb.addWorksheet('Alerts');
     // const batchSheet = wb.addWorksheet('Batch Details');
 
-    // var trucks = [];
-    // var batches = [];
-    // var alerts = [];
-    // var numDriverResolvable = 0;
-    // var numNonResolvable = 0;
-    // var numAlertsResolved = 0;
+    // functions.logger.log("request: ", req);
+    
+    var trucks = [];
+    var batches = [];
+    var alerts = [];
+    // var cartons = [];
+    var numTrucks = 0;
+    var numBatches = 0;
+    var numDriverResolvable = 0;
+    var numNonResolvable = 0;
+    var numAlerts = 0;
+    var numAlertsResolved = 0;
 
-    // const truckRef = admin.database().ref('trucks');
-    // const batchRef = admin.database().ref('batches');
-    // const alertRef = admin.database().ref('alerts/resolved');
-    // truckRef.once('value', (snapshot) => {
-    //     const values = snapshot.val();
-    //     trucks = Object.values(values);
-    // }).then(
-    // batchRef.once('value', (snapshot) => {
-    //     const values = snapshot.val();
-    //     batches = Object.values(values);
-    // })).then(
-    // alertRef.once('value', (snapshot) => {
-    //     const values = snapshot.val();
-    //     alerts = Object.values(values);
-    // })).catch(
-    //     (error) => {
-    //         console.log(error);
-    //     }
-    // )
+    const truckRef = admin.database().ref('trucks');
+    const batchRef = admin.database().ref('batches');
+    const alertRef = admin.database().ref('issues');
 
-    // generalSheet.cell(1, 1).string('Daily Summary Report');
-    // generalSheet.cell(2, 1).string('Date: ');
-    // generalSheet.cell(3, 1).string('Number of trucks: ');
-    // generalSheet.cell(4, 1).string('Number of batches: ');
-    // generalSheet.cell(5, 1).string('Number of driver-resolvable alerts: ');
-    // generalSheet.cell(6, 1).string('Number of non-resolvable alerts: ');
-    // generalSheet.cell(7, 1).string('Total number of alerts: ');
-    // generalSheet.cell(8, 1).string('Number of alerts resolved: ');
+    await batchRef.once('value', (snapshot) => {
+        const values = snapshot.val();
+        batches = Object.values(values);
+        numBatches = batches.length;
+        // batches.forEach(batch => {
+        //     cartons.push(...batch.cargo);
+        // });
+    });
 
-    // const date = Date();
-    // generalSheet.cell(2, 2).string(date);
-    // generalSheet.cell(3, 2).string(trucks.length);  
-    // generalSheet.cell(4, 2).string(batches.length);
+    await truckRef.once('value', (snapshot) => {
+        const values = snapshot.val();
+        trucks = Object.values(values);
+        numTrucks = trucks.length;
+    });
 
-    // alertsSheet.cell(1, 1, 1, 4, true).string('Alerts summary (Sort by time)');
-    // alertsSheet.cell(2, 1).string('Date: ');
-    // alertsSheet.cell(3, 1).string('Alert ID');
-    // alertsSheet.cell(3, 2).string('Time');
-    // alertsSheet.cell(3, 3).string('Carton ID');
-    // alertsSheet.cell(3, 4).string('Batch ID');
-    // alertsSheet.cell(3, 5).string('Truck ID');
-    // alertsSheet.cell(3, 6).string('Type of alert');
-    // alertsSheet.cell(3, 7).string('Is it resolved?');
-    // alertsSheet.cell(3, 8).string('Resolved by');
-    // alertsSheet.cell(3, 9).string('Resolved time');
-    // alertsSheet.cell(3, 10).string('Environment Requirements');
-    // alertsSheet.cell(3, 11).string('Alerts Details');
 
-    // alerts.forEach((alert, index) => {
-    //     const row = index + 4;
-    //     alertsSheet.cell(row, 1).string(alert.id);
-    //     alertsSheet.cell(row, 2).string(alert.time);
-    //     alertsSheet.cell(row, 3).string(alert.cartonID);
-    //     alertsSheet.cell(row, 4).string(alert.batchID);
-    //     alertsSheet.cell(row, 5).string(alert.truckID);
-    //     alertsSheet.cell(row, 6).string(alert.type);
-    //     alertsSheet.cell(row, 7).string(alert.resolved);
-    //     alertsSheet.cell(row, 8).string(alert.resolvedBy);
-    //     alertsSheet.cell(row, 9).string(alert.resolvedTime);
-    //     alertsSheet.cell(row, 10).string(alert.environmentRequirements);
-    //     alertsSheet.cell(row, 11).string(alert.details);
-    // });
+    await alertRef.once('value', (snapshot) => {
+        const values = snapshot.val();
+        alerts = Object.values(values);
+        numAlerts = alerts.length;
+    });
 
-    // batchSheet.cell(1, 1).string('Batch Details');
-    // batchSheet.cell(2, 1).string('Date: ');
-    // batchSheet.cell(3, 1).string('Batch ID');
-    // batchSheet.cell(3, 2).string('Time leaving the warehouse');
-    // batchSheet.cell(3, 3).string('Truck ID');
-    // batchSheet.cell(3, 4).string('Cartons');
-    // batchSheet.cell(3, 5).string('Arrival Time');
-    // batchSheet.cell(3, 6).string('Shipping Time');
-    // batchSheet.cell(3, 7).string('Delivered by');
-    // batchSheet.cell(3, 8).string('Environment Requirements');
-    // batchSheet.cell(3, 9).string('Any Alerts?');
+    // await admin.messaging().send({
+    //     token: dashboardFCMToken,
+    //     notification: {
+    //         title: 'Export Report',
+    //         body: 'Generating report...'
+    //     },
+    // })
 
-    res.send([
-        ["Daily Summary Report"],
-        ["Date: ", Date()],
-        ["Number of trucks: "],
-        ["Number of batches: "],
-        ["Number of driver-resolvable alerts: "],
-        ["Number of non-resolvable alerts: "],
-        ["Total number of alerts: "],
-        ["Number of alerts resolved: "]
-    ]);
+    // functions.logger.log('Sent notif');
 
     return {
         general: [
             ["Daily Summary Report"],
             ["Date: ", Date()],
-            ["Number of trucks: "],
-            ["Number of batches: "],
+            ["Number of trucks: ", numTrucks],
+            ["Number of batches: ", numBatches],
             ["Number of driver-resolvable alerts: "],
             ["Number of non-resolvable alerts: "],
-            ["Total number of alerts: "],
+            ["Total number of alerts: ", numAlerts],
             ["Number of alerts resolved: "]
-        ]
+        ],
+        // carton: [
+        //     ["Carton Details"],
+        //     ["Date: ", Date()],
+        //     ["Time leaving the warehouse", "Truck ID", "Batch ID", "Carton ID", "Arrival Time", "Any Alerts?"],
+        // //     ...cartons.map(carton => {
+        // //         return [
+                    
+        // //         ]
+        // //     })
+        // ],
+        // alert: [
+        //     ["Alert Details"],
+        //     ["Date: ", Date()],
+        //     ["Time of alert", "Carton ID", "Batch ID", "Truck ID", "Alert Type", "Is it resolved?", "Resolved by", "Alert Details"],
+        //     // ...alerts.map(alert => {
+        //     //     return [
+        //     //     ]
+        //     // })
+        // ]
     }
 });
