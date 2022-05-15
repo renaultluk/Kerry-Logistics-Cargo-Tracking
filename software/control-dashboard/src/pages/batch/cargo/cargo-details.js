@@ -19,10 +19,7 @@ const CargoInfo = () => {
     //     isUpright: false,
     // }
 
-    const [cargo, setCargo] = useState({
-        id: "",
-        alertStatus: []
-    });
+    const [cargo, setCargo] = useState([]);
 
     const fetchData = async () => {
         const cargoRef = ref(db, `batches/${batchID}/cargo/${cargoID}`);
@@ -30,13 +27,22 @@ const CargoInfo = () => {
             if (snapshot.exists()) {
                 const obj = snapshot.val();
                 console.log(obj);
-                var alertStatus = obj.alertStatus;
-                alertStatus = Object.values(alertStatus);
+                // var alertStatus = obj.alertStatus;
+                const alertKeys = Object.keys(obj);
+                var alertStatus = Object.values(obj);
                 alertStatus.forEach((alert, index) => {
                     alert['id'] = index;
+                    alert['time'] = alertKeys[index];
+                    alert['humd'] = alert.BME280.Humidity;
+                    alert['temp'] = alert.BME280.Temperature;
+                    // alert['press'] = alert.BME280.Pressure;
+                    alert['shocked'] = alert.KY002.Box_shocked;
+                    alert['opened'] = alert.Photoresistor.Box_opened;
+                    alert['location'] = alert.Location.Location;
+                    alert['orientation'] = alert.MPU6050.Rotation;
                 })
                 console.log(alertStatus);
-                setCargo({ ...obj, alertStatus: alertStatus });
+                setCargo(alertStatus);
             }
         })
     }
@@ -102,21 +108,28 @@ const CargoInfo = () => {
             </FormGroup> */}
             <Typography>Carton ID: {cargoID}</Typography>
             {
-                cargo.alertStatus.length > 0 ?
+                cargo.length > 0 ?
                 <div style={{ height: '500px' }}>
                     <DataGrid
-                        rows={cargo.alertStatus}
+                        rows={cargo}
                         columns={[
-                            { field: 'time', title: 'Time' },
-                            { field: 'BME280', title: 'BME280' },
-                            { field: 'KY002', title: 'KY002' },
-                            { field: 'MPU6050', title: 'MPU6050' },
-                            { field: 'Photoresistor', title: 'Photoresistor' },
+                            { field: 'time', headerName: 'Time' },
+                            { field: 'location', headerName: 'Location' },
+                            { field: 'temp', headerName: 'Temperature' },
+                            { field: 'humd', headerName: 'Humidity' },
+                            { field: 'shocked', headerName: 'Box shocked' },
+                            { field: 'opened', headerName: 'Box opened' },
+                            { field: 'orientation', headerName: 'Orientation' },
                         ]}
                     />
                 </div>
                 : null
             }
+            <Button
+                onClick={() => history.goBack()}
+            >
+                Back
+            </Button>
         </>
     );
 }

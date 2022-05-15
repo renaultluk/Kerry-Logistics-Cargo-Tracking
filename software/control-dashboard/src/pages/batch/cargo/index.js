@@ -56,9 +56,10 @@ const BatchInfo = () => {
                 if (!obj['cargo']) {
                     obj['cargo'] = [];
                 } else {
+                    const cargoKeys = Object.keys(obj['cargo']);
                     obj['cargo'] = Object.values(obj['cargo']);
                     obj['cargo'].forEach((cargo, index) => {
-                        cargo['cargoID'] = cargo['id'];
+                        cargo['cargoID'] = cargoKeys[index];
                         cargo['id'] = index;
                     })
                 }
@@ -138,7 +139,9 @@ const BatchInfo = () => {
     const handlePost = () => {
         const newRef = batchID ? ref(db, `batches/${batchID}`) : ref(db, `batches/${batch.id}`);
         batch.deliveryStatus = "pending";
-        set(newRef, batch);
+        var batchToUpload = { ...batch };
+        delete batchToUpload.cargo;
+        set(newRef, batchToUpload);
         toast.success(`Batch ${batch.id} added`, {
             position: "top-right",
             autoClose: 5000,
@@ -305,7 +308,8 @@ const BatchInfo = () => {
                                             ]}
                                             rows={batch.cargo}
                                             onRowDoubleClick={(row) => {
-                                                history.push(`${url}/cargo?cargoID=${row.id}&batchID=${batchID}`);
+                                                console.log("row: ", row);
+                                                history.push(`${url}/cargo?cargoID=${row.row.cargoID}&batchID=${batchID}`);
                                             }}
                                         />
                                     </div>
