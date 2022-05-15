@@ -166,7 +166,7 @@ exports.checkDelivered = functions.https.onCall( async (req, res) => {
         lat: 22.3373,
         lon: 114.26384
     };
-    var address = "Hong Kong University of Science and Technology";
+    // var address = "Hong Kong University of Science and Technology";
     // await admin.database().ref(`trucks/${truckID}`).once('value', (snapshot) => {
     //     const truckObj = snapshot.val();
     //     const locationStr = truckObj.location;
@@ -174,10 +174,11 @@ exports.checkDelivered = functions.https.onCall( async (req, res) => {
     //     currLocation.lat = parseFloat(locationArr[0]);
     //     currLocation.lon = parseFloat(locationArr[1]);
     // });
-    // await admin.database().ref(`batches/${batchID}`).once('value', (snapshot) => {
-    //     const batchObj = snapshot.val();
-    //     const address = batchObj.address;
-    // });
+    var address = "";
+    await admin.database().ref(`batches/${batchID}`).once('value', (snapshot) => {
+        const batchObj = snapshot.val();
+        address = batchObj.address;
+    });
     const response = await axios.get(`https://api.tomtom.com/search/2/search/${encodeURIComponent(address)}.json?key=Pf3TNIqZkfJZHAuYLSazmpLqMe24AWDp`);
     functions.logger.log(response);
     const destination = response.data.results[0].position;
