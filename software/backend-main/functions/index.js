@@ -142,9 +142,11 @@ exports.handleAlerts = functions.database.ref('batches/{batchID}/cargo/{cargoID}
     });
 });
 
-exports.checkDelivered = functions.https.onCall((req, res) => {
-    const truckID = req.query.truckID;
-    const batchID = req.query.batchID;
+exports.checkDelivered = functions.https.onCall( async (req, res) => {
+    const axios = require('axios');
+    const truckID = req.truckID;
+    const batchID = req.batchID;
+    functions.logger.info(`Checking if batch ${batchID} has been delivered by truck ${truckID}`);
     const calculateDistance = (curr, dest) => {
         let lon1 = curr.lon * Math.PI / 180;
         let lon2 = dest.lon * Math.PI / 180;
@@ -161,63 +163,68 @@ exports.checkDelivered = functions.https.onCall((req, res) => {
         return (c * r);
     }
     var currLocation = {
-        lat: 0.0,
-        lon: 0.0
+        lat: 22.3373,
+        lon: 114.26384
     };
-    admin.database().ref(`trucks/${truckID}`).once('value', (snapshot) => {
-        const truckObj = snapshot.val();
-        const locationStr = truckObj.location;
-        const locationArr = locationStr.split(',');
-        currLocation.lat = parseFloat(locationArr[0]);
-        currLocation.lon = parseFloat(locationArr[1]);
-    }).then(
-    admin.database().ref(`batches/${batchID}`).once('value', (snapshot) => {
-        const batchObj = snapshot.val();
-        const address = batchObj.address;
-    })).then(
-        fetch(`https://api.tomtom.com/search/2/search/${encodeURIComponent(address)}.json?key=Pf3TNIqZkfJZHAuYLSazmpLqMe24AWDp`)
-        .then(response => response.json())
-        .then(data => {
-            const destination = data.results[0].position;
-            const distance = calculateDistance(currLocation, destination);
-            if (distance > 0.1) {
-                //TODO: Send message to app and dashboard
-                admin.database().ref(`drivers/${truckObj.driverID}`).once('value' , (snapshot) => {
-                    const driverObj = snapshot.val();
-                    const driverFCMToken = driverObj.FCMtoken;
-                    const payload = {
-                        notification: {
-                            title: `Wrong location for batch ${batchID}!`,
-                            body: `You are ${distance} away from the actual destination.`
-                        }
-                    }
-                    admin.messaging().sendToDevice(driverFCMToken, payload);
-                    const dashboardFCMRef = admin.database().ref('dashboardFCMToken');
-                    dashboardFCMRef.once('value', (snapshot) => {
-                        dashboardFCMToken = snapshot.val();
-                    }).then(() => {
-                        admin.messaging().sendToDevice(dashboardFCMToken, payload);
-                    })
-                    return {
-                        deliveredCheck: false
-                    }
-                })
-            }
-            return {
-                deliveredCheck: true
-            }
-        })
-    ).catch((error) => {
-            console.log(error);
+    var address = "Hong Kong University of Science and Technology";
+    // await admin.database().ref(`trucks/${truckID}`).once('value', (snapshot) => {
+    //     const truckObj = snapshot.val();
+    //     const locationStr = truckObj.location;
+    //     const locationArr = locationStr.split(',');
+    //     currLocation.lat = parseFloat(locationArr[0]);
+    //     currLocation.lon = parseFloat(locationArr[1]);
+    // });
+    // await admin.database().ref(`batches/${batchID}`).once('value', (snapshot) => {
+    //     const batchObj = snapshot.val();
+    //     const address = batchObj.address;
+    // });
+    const response = await axios.get(`https://api.tomtom.com/search/2/search/${encodeURIComponent(address)}.json?key=Pf3TNIqZkfJZHAuYLSazmpLqMe24AWDp`);
+    functions.logger.log(response);
+    const destination = response.data.results[0].position;
+    functions.logger.log(destination);
+    const distance = calculateDistance(currLocation, destination);
+    // const distance = 0.1;
+    if (distance > 0.1) {
+        //TODO: Send message to app and dashboard
+        // await admin.database().ref(`drivers/${truckObj.driverID}`).once('value' , (snapshot) => {
+        //     const driverObj = snapshot.val();
+        //     const driverFCMToken = driverObj.FCMtoken;
+        //     const payload = {
+        //         notification: {
+        //             title: `Wrong location for batch ${batchID}!`,
+        //             body: `You are ${distance} away from the actual destination.`
+        //         }
+        //     }
+        //     admin.messaging().sendToDevice(driverFCMToken, payload);
+        //     const dashboardFCMRef = admin.database().ref('dashboardFCMToken');
+        //     dashboardFCMRef.once('value', (snapshot) => {
+        //         dashboardFCMToken = snapshot.val();
+        //     }).then(() => {
+        //         admin.messaging().sendToDevice(dashboardFCMToken, payload);
+        //     })
+        // })
+        functions.logger.log("Wrong location");
+        return {
+            deliveredCheck: false,
+            distance: distance
         }
-    );
+    }
+    functions.logger.log(`Batch ${batchID} is delivered!`);
+    admin.database().ref(`batches/${batchID}`).update({
+        'deliveryStatus': 'delivered',
+    }).catch((error) => {
+        console.log(error);
+    })
+    return {
+        deliveredCheck: true
+    }
 });
 
 exports.runSignOff = functions.https.onCall((req, res) => {
     const batchID = req.batchID;
 
     admin.database().ref(`batches/${batchID}`).update({
-        'deliveryStatus': 'delivered',
+        'deliveryStatus': 'signed off',
     }).catch((error) => {
         console.log(error);
     })
