@@ -328,9 +328,9 @@ const BatchInfo = () => {
                             >
                                 Cancel
                             </Button>
-                            <Button onClick={handleSave}>
+                            {/* <Button onClick={handleSave}>
                                 Save
-                            </Button>
+                            </Button> */}
                             <Button onClick={handlePost}>
                                 Post
                             </Button>

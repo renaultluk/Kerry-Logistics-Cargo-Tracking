@@ -4,6 +4,7 @@ import { toast, ToastContainer } from 'react-toastify';
 
 import Login from "./Login";
 import Main from "./Main";
+import Test from "./test";
 // import BatchesOverview from "./BatchesOverview";
 // import BatchInfo from "./BatchInfo";
 // import CargoInfo from "./CargoInfo";
@@ -43,6 +44,9 @@ class Root extends Component {
                     </Route>
                     <Route path="/main">
                         <Main showToast={this.showToast} />
+                    </Route>
+                    <Route path="/test">
+                        <Test showToast={this.showToast} />
                     </Route>
                     {/* <Route 
                         exact
