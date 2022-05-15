@@ -3,6 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { TextField, Button, Typography, Grid, Paper } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { toast } from 'react-toastify';
+// var xl = require('excel4node');
 
 import { db, functions } from '../config/my-firebase';
 import { ref, onValue, onChildAdded, get, child } from "firebase/database";
@@ -82,13 +83,22 @@ const AlertsSummary = () => {
     }, [])
 
     const exportReport = async () => {
-        // const d = new Date();
-        // const date = d.toLocaleDateString();
-        // ReactPDF.render(<Report />, `${__dirname}/report-${date}.pdf`);
-        // connectFunctionsEmulator(functions, "localhost", 5001);
         const callReport = httpsCallable(functions, 'exportReport');
         callReport().then((result) => {
             console.log(result);
+            // const reportData = result.data;
+
+            // const wb = new xl.Workbook();
+            // const generalSheet = wb.addWorksheet('General');
+            // const alertSheet = wb.addWorksheet('Alerts');
+
+            // for (let i = 0; i < reportData.general.length; i++) {
+            //     for (let j = 0; j < reportData[i].general.length; j++) {
+            //         generalSheet.cell(i + 1, j + 1).string(reportData.general[i][j]);
+            //     }
+            // }
+
+            // wb.write('Report.xlsx');
         })
     }
     

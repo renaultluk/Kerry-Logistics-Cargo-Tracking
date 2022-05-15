@@ -300,12 +300,12 @@ exports.runSignOff = functions.https.onCall((req, res) => {
 });
 
 exports.exportReport = functions.https.onCall( async (req, res) => {
-    // const xl = require('excel4node');
+    const xl = require('excel4node');
 
-    // const wb = new xl.Workbook();
+    const wb = new xl.Workbook();
 
-    // const generalSheet = wb.addWorksheet('General');
-    // const alertsSheet = wb.addWorksheet('Alerts');
+    const generalSheet = wb.addWorksheet('General');
+    const alertsSheet = wb.addWorksheet('Alerts');
     // const batchSheet = wb.addWorksheet('Batch Details');
 
     // functions.logger.log("request: ", req);
@@ -345,6 +345,17 @@ exports.exportReport = functions.https.onCall( async (req, res) => {
         const values = snapshot.val();
         alerts = Object.values(values);
         numAlerts = alerts.length;
+        alerts.forEach(alert => {
+            if (alert.resolved) {
+                numAlertsResolved++;
+            }
+            if (alert.issue === "temperature" || alert.issue === "humidity") {
+                numDriverResolvable++;
+            } else {
+                numNonResolvable++;
+            }
+        });
+        alerts.map(alert => Object.values(alert));
     });
 
     // await admin.messaging().send({
@@ -357,16 +368,22 @@ exports.exportReport = functions.https.onCall( async (req, res) => {
 
     // functions.logger.log('Sent notif');
 
+    alerts.unshift(
+        ["Alert Details"],
+        ["Date: ", Date()],
+        ["Time of alert", "Carton ID", "Batch ID", "Alert Type", "Is it resolved?"],
+    );
+
     return {
         general: [
             ["Daily Summary Report"],
             ["Date: ", Date()],
             ["Number of trucks: ", numTrucks],
             ["Number of batches: ", numBatches],
-            ["Number of driver-resolvable alerts: "],
-            ["Number of non-resolvable alerts: "],
+            ["Number of driver-resolvable alerts: ", numDriverResolvable],
+            ["Number of non-resolvable alerts: ", numNonResolvable],
             ["Total number of alerts: ", numAlerts],
-            ["Number of alerts resolved: "]
+            ["Number of alerts resolved: ", numAlertsResolved]
         ],
         // carton: [
         //     ["Carton Details"],
@@ -381,11 +398,17 @@ exports.exportReport = functions.https.onCall( async (req, res) => {
         // alert: [
         //     ["Alert Details"],
         //     ["Date: ", Date()],
-        //     ["Time of alert", "Carton ID", "Batch ID", "Truck ID", "Alert Type", "Is it resolved?", "Resolved by", "Alert Details"],
-        //     // ...alerts.map(alert => {
-        //     //     return [
-        //     //     ]
-        //     // })
+        //     ["Time of alert", "Carton ID", "Batch ID", "Alert Type", "Is it resolved?"],
+        // //     ...alerts.map(alert => {
+        // //         return [
+        // //             alert.time,
+        // //             alert.cartonID,
+        // //             alert.batchID,
+        // //             alert.issue,
+        // //             alert.resolved,
+        // //         ]
+        // //     })
         // ]
+        alert: alerts
     }
 });

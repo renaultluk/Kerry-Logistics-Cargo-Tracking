@@ -28,12 +28,11 @@ const BatchesOverview = () => {
                 console.log(obj);
                 const arrKeys = Object.keys(obj);
                 const objArr = Object.values(obj);
-                // objArr.shift();
-                const batches = objArr;
-                console.log(batches);
-                const batchKeys = Object.keys(batches);
-                const batchValues = batchKeys.map((key) => batches[key]);
-                setBatches(batchValues);
+                objArr.forEach((batch, index) => {
+                    batch['batchID'] = arrKeys[index];
+                    batch['id'] = index;
+                });
+                setBatches(objArr);
             }
         })
     }
@@ -116,12 +115,11 @@ const BatchesOverview = () => {
                 console.log(obj);
                 const arrKeys = Object.keys(obj);
                 const objArr = Object.values(obj);
-                // objArr.shift();
-                const batches = objArr;
-                console.log(batches);
-                const batchKeys = Object.keys(batches);
-                const batchValues = batchKeys.map((key) => batches[key]);
-                setBatches(batchValues);
+                objArr.forEach((batch, index) => {
+                    batch['batchID'] = arrKeys[index];
+                    batch['id'] = index;
+                });
+                setBatches(objArr);
             }
         });
 
@@ -160,7 +158,7 @@ const BatchesOverview = () => {
                     <div style={{ height: 500 }}>
                         <DataGrid 
                             columns={[
-                                { field: 'id', headerName: 'Batch ID' },
+                                { field: 'batchID', headerName: 'Batch ID' },
                                 { field: 'address', headerName: 'Address' },
                                 { field: 'deliveryStatus', headerName: 'Delivery Status' },
                                 { field: 'requiresTemp', headerName: 'Has Temperature Requirements' },
@@ -174,7 +172,7 @@ const BatchesOverview = () => {
                             ]}
                             rows={batches}
                             onRowDoubleClick={(row) => {
-                                history.push(`${url}/batch?batchID=${row.id}`);
+                                history.push(`${url}/batch?batchID=${row.row.batchID}`);
                             }}
                         />
                     </div>
