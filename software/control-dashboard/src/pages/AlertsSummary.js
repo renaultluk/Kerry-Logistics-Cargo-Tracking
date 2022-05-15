@@ -19,13 +19,15 @@ const AlertsSummary = () => {
     const [reportData, setReportData] = useState([]);
 
     const fetchData = async () => {
-        const alertRef = ref(db, 'issues/pending');
+        const alertRef = ref(db, 'issues');
         get(alertRef).then((snapshot) => {
             if (snapshot.exists()) {
                 const obj = snapshot.val();
-                obj.shift();
-                const alertValues = obj;
+                // obj.shift();
+                const alertKeys = Object.keys(obj);
+                const alertValues = Object.values(obj);
                 alertValues.forEach((alert, index) => {
+                    alert['alertID'] = alertKeys[index];
                     alert['id'] = index;
                 })
                 console.log(alertValues);
@@ -109,11 +111,12 @@ const AlertsSummary = () => {
                     <div style={{ height: '500px', width: '100%'}}>
                         <DataGrid
                             columns={[
-                                { field: 'cargo-id', headerName: 'Cargo ID' },
-                                { field: 'truck-id', headerName: 'Truck ID' },
-                                { field: 'time', headerName: 'Time of Occurrence' },
+                                { field: 'alertID', headerName: 'Alert ID' },
+                                { field: 'time', headerName: 'Time of Occurence' },
+                                { field: 'cargoID', headerName: 'Cargo ID' },
+                                { field: 'batchID', headerName: 'Batch ID' },
                                 { field: 'issue', headerName: 'Issue' },
-                                { field: 'data', headerName: 'Data' },
+                                { field: 'resolved', headerName: 'Resolved?' },
                             ]}
                             rows={alerts}
                         />
