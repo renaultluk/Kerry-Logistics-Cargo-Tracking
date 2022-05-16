@@ -44,48 +44,6 @@ exports.handleAlerts = functions.database.ref('batches/{batchID}/cargo/{cargoID}
         functions.logger.info('temperature: ', temperature, ' batchObj.tempThreshold: ', batchObj.tempLowerBound, ' ', batchObj.tempUpperBound);
 
         if ((temperature < batchObj.tempLowerBound) || (temperature > batchObj.tempUpperBound)) {
-            // var driverFCMToken = "";
-            // var driverID = "";
-            // const date = Date();
-            // var alertObj = {
-            //     time: date,
-            //     cargoID: cargoID,
-            //     batchID: batchID,
-            //     truckID: batchObj.truckID,
-            //     type: "temperature",
-            //     resolved: false,
-            // };
-            // const truckID = batchObj.truckID;
-            // admin.database().ref(`trucks/${truckID}`).once('value', (snapshot) => {
-            //     const truckObj = snapshot.val();
-            //     driverID = truckObj.driverID;
-            // }).then(() => {
-            //     admin.database().ref(`drivers/${driverID}`).once('value', (snapshot) => {
-            //         const driverObj = snapshot.val();
-            //         driverFCMToken = driverObj.FCMtoken;
-            //     })
-            // }).then(() => {
-            //     payload = {
-            //         notification: {
-            //             title: "Temperature Alert",
-            //             body: `The temperature is ${temperature}°C`,
-            //         },
-            //         data: alertObj
-            //     }
-            // }).then(() => {
-            //     const dashboardFCMRef = admin.database().ref('dashboardFCMToken');
-            //     dashboardFCMRef.once('value', (snapshot) => {
-            //         dashboardFCMToken = snapshot.val();
-            //     }).then(() => {
-            //         admin.messaging().sendToDevice(dashboardFCMToken, payload);
-            //     })
-            // }).then(() => {
-            //     admin.messaging().sendToDevice(dashboardFCMToken, payload);
-            // }).then(() => {
-            //     return admin.database().ref('alerts').push(alertObj);
-            // }).catch((error) => {
-            //     console.log(error);
-            // });
             functions.logger.log("Temperature Alert");
             console.log("Temperature Alert");
             const issueObj = {
@@ -100,76 +58,13 @@ exports.handleAlerts = functions.database.ref('batches/{batchID}/cargo/{cargoID}
             functions.logger.log("Temperature OK");
             console.log("Temperature OK");
             // return "Temperature OK";
-        }}
-    // const issueObj = {
-    //     time: time,
-    //     cargoID: cargoID,
-    //     batchID: batchID,
-    //     issue: "temperature",
-    //     resolved: false,
-    // };
-    // await admin.database().ref('issues/1').set(issueObj);
-    // return admin.database().ref('alerts').push(issueObj);
-
-    // if (batchObj.requiresHumidity) {
-    //     const humidity = newEntry.BME280.Humidity;
-    //     humidity = humidity.slice(-2);
-
-    //     if ((humidity < batchObj.humidityLowerBound) || (humidity > batchObj.humidityUpperBound)) {
-    //         var driverFCMToken = "";
-    //         var driverID = "";
-    //         const truckID = batchObj.truckID;
-    //         admin.database().ref(`trucks/${truckID}`).once('value', (snapshot) => {
-    //             const truckObj = snapshot.val();
-    //             driverID = truckObj.driverID;
-    //         }).then(() => {
-    //             admin.database().ref(`drivers/${driverID}`).once('value', (snapshot) => {
-    //                 const driverObj = snapshot.val();
-    //                 driverFCMToken = driverObj.FCMtoken;
-    //             })
-    //         }).then(() => {
-    //             payload = {
-    //                 notification: {
-    //                     title: "Humidity Alert",
-    //                     body: `The humidity is ${temperature}°C`,
-    //                 },
-    //             }
-    //         }).then(() => {
-    //             const dashboardFCMRef = admin.database().ref('dashboardFCMToken');
-    //             dashboardFCMRef.once('value', (snapshot) => {
-    //                 dashboardFCMToken = snapshot.val();
-    //             }).then(() => {
-    //                 admin.messaging().sendToDevice(dashboardFCMToken, payload);
-    //             })
-    //         }).then(() => {
-    //             admin.messaging().sendToDevice(driverFCMToken, payload);
-    //         }).then(() => {
-    //             return null;
-    //         }).catch((error) => {
-    //             console.log(error);
-    //         });
-    //     }
-    // }
+        }
+    }
 
     functions.logger.info('batchObj.isFragile: ', batchObj.isFragile);
     functions.logger.info('newEntry.KY002.Box_shocked: ', newEntry.KY002.Box_shocked);
-    if ((batchObj.isFragile) && newEntry.KY002.Box_shocked) {
-    //     payload = {
-    //         notification: {
-    //             title: "Fragile Cargo Alert",
-    //             body: `The cargo is fragile`,
-    //             // icon: "https://firebasestorage.googleapis.com/v0/b/cargo-tracker-f9f9f.appspot.com/o/logo.png?alt=media&token=f9f9f9f9-f9f9-f9f9-f9f9-f9f9f9f9f9f"
-    //         },
-    //     }
-    //     const dashboardFCMRef = admin.database().ref('dashboardFCMToken');
-    //     dashboardFCMRef.once('value', (snapshot) => {
-    //         dashboardFCMToken = snapshot.val();
-    //     }).then(() => {
-    //         admin.messaging().sendToDevice(dashboardFCMToken, payload);
-    //     })
-    // }
+    if ((batchObj.isFragile) && (newEntry.KY002.Box_shocked == true)) {
         functions.logger.log("Shock Alert");
-        // console.log("Temperature Alert");
         const issueObj = {
             time: time,
             cargoID: cargoID,
@@ -180,23 +75,41 @@ exports.handleAlerts = functions.database.ref('batches/{batchID}/cargo/{cargoID}
         await admin.database().ref('issues').push(issueObj);
     } else {
         functions.logger.log("Shock OK");
-        // console.log("Temperature OK");
-        // return "Temperature OK";
-    }}
+    }
 
-    // if (batchObj.isUpright) {
-    //     const orientation = newEntry.MPU6050.Rotation;
-    //     //TODO: orientation extraction
-    //     var orientationArray = orientation.split(",");
-    //     orientationArray.map((element) => {
-    //         element = element.split(" ");
-    //         return parseFloat(element[1]);
-    //     });
-    //     if ((orientationArray[0] > ))
-    // }
+    functions.logger.info('Orientation: ', newEntry.MPU6050.Rotation);
+    if (batchObj.isUpright) {
+        const orientation = newEntry.MPU6050.Rotation;
+        //TODO: orientation extraction
+        var orientationArray = orientation.split(",");
+        var resArray = [];
+        orientationArray.forEach((element, index) => {
+            element = element.split(" ");
+            if (index != 0) element.shift();
+            functions.logger.info('element: ', element);
+            // functions.logger.info('parsed value ', element[0], ' ', element[1]);
+            const result = parseFloat(element[1]);
+            functions.logger.info('result: ', result);
+            resArray.push(result);
+        });
+        functions.logger.info('resArray: ', resArray);
+        if ((Math.abs(resArray[0]) > (Math.PI / 4)) || (Math.abs(resArray[1]) > (Math.PI / 4))) {
+            functions.logger.log("Orientation Alert");
+            const issueObj = {
+                time: time,
+                cargoID: cargoID,
+                batchID: batchID,
+                issue: "flipped",
+                resolved: false,
+            };
+            await admin.database().ref('issues').push(issueObj);
+        } else {
+            functions.logger.log("Orientation OK");
+        }
+    }
 
     // const opened = newEntry.Photoresistor.Box_opened;
-);
+});
 
 exports.checkDelivered = functions.https.onCall( async (req, res) => {
     const axios = require('axios');

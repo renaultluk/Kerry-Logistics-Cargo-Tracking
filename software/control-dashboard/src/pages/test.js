@@ -10,6 +10,7 @@ const Test = () => {
     const [temp, setTemp] = useState("");
     const [humidity, setHumidity] = useState("");
     const [shocked, setShocked] = useState(false);
+    const [orientation, setOrientation] = useState("");
     const [requiresTemp, setRequiresTemp] = useState(false);
     const [requiresHumidity, setRequiresHumidity] = useState(false);
     const [tempLowerBound, setTempLowerBound] = useState(0);
@@ -34,6 +35,9 @@ const Test = () => {
             KY002: {
                 Box_shocked: shocked,
             },
+            MPU6050: {
+                Rotation: orientation,
+            }
         };
         console.log(cargo);
         const response = await set(batchRef, cargo).catch((error) => console.log(error));
@@ -75,7 +79,10 @@ const Test = () => {
                 <input type="text" value={humidity} onChange={(e) => setHumidity(e.target.value)} />
                 <br />
                 <label>Box Shocked: </label>
-                <input type="radio" value={shocked} onChange={(e) => setShocked(e.target.value)} />
+                <input type="radio" value={shocked} onChange={(e) => setShocked(!shocked)} />
+                <br />
+                <label>Orientation: </label>
+                <input type="text" value={orientation} onChange={(e) => setOrientation(e.target.value)} />
                 <br />
                 <Button onClick={handleUploadStatus}>Submit</Button>
             </form>
