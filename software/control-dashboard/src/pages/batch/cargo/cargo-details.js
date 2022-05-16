@@ -6,6 +6,7 @@ import useQuery from '../../../utils/useQuery';
 
 import { db } from '../../../config/my-firebase';
 import { ref, get, set, push } from "firebase/database";
+import { async } from '@firebase/util';
 
 const CargoInfo = () => {
     const history = useHistory();
@@ -67,7 +68,8 @@ const CargoInfo = () => {
         );
     }
 
-    
+    // setInterval(fetchData, 5000);
+    // console.log("refresh");
     
     return (
         <>

@@ -54,14 +54,14 @@ const BatchesOverview = () => {
             const resBatch = {
                 id: rowArr[0],
                 address: rowArr[1],
-                requiresTemp: rowArr[3] === "Yes",
-                requiresHumidity: rowArr[4] === "Yes",
-                tempLowerBound: !isNaN(parseInt(rowArr[5])) ? parseInt(rowArr[5]) : 0,
-                tempUpperBound: !isNaN(parseInt(rowArr[6])) ? parseInt(rowArr[6]) : 0,
-                humidityLowerBound: !isNaN(parseInt(rowArr[7])) ? parseInt(rowArr[7]) : 0,
-                humidityUpperBound: !isNaN(parseInt(rowArr[8])) ? parseInt(rowArr[8]) : 0,
-                isFragile: rowArr[9] === "Yes",
-                isUpright: rowArr[10] === "Yes",
+                requiresTemp: rowArr[2] === "Yes",
+                requiresHumidity: rowArr[3] === "Yes",
+                tempLowerBound: !isNaN(parseInt(rowArr[4])) ? parseInt(rowArr[4]) : 0,
+                tempUpperBound: !isNaN(parseInt(rowArr[5])) ? parseInt(rowArr[5]) : 0,
+                humidityLowerBound: !isNaN(parseInt(rowArr[6])) ? parseInt(rowArr[6]) : 0,
+                humidityUpperBound: !isNaN(parseInt(rowArr[7])) ? parseInt(rowArr[7]) : 0,
+                isFragile: rowArr[8] === "Yes",
+                isUpright: rowArr[9] === "Yes",
                 cargo: [],
                 deliveryStatus: "pending",
             }
@@ -108,24 +108,24 @@ const BatchesOverview = () => {
     useEffect(() => {
         fetchData().catch((error) => console.log(error));
 
-        const batchesListenerRef = ref(db, 'batches');
-        onValue(batchesListenerRef, (snapshot) => {
-            if (snapshot.exists()) {
-                const obj = snapshot.val();
-                console.log(obj);
-                const arrKeys = Object.keys(obj);
-                const objArr = Object.values(obj);
-                objArr.forEach((batch, index) => {
-                    batch['batchID'] = arrKeys[index];
-                    batch['id'] = index;
-                });
-                setBatches(objArr);
-            }
-        });
+        // const batchesListenerRef = ref(db, 'batches');
+        // onValue(batchesListenerRef, (snapshot) => {
+        //     if (snapshot.exists()) {
+        //         const obj = snapshot.val();
+        //         console.log(obj);
+        //         const arrKeys = Object.keys(obj);
+        //         const objArr = Object.values(obj);
+        //         objArr.forEach((batch, index) => {
+        //             batch['batchID'] = arrKeys[index];
+        //             batch['id'] = index;
+        //         });
+        //         setBatches(objArr);
+        //     }
+        // });
 
-        return () => {
-            batchesListenerRef.off();
-        }
+        // return () => {
+        //     batchesListenerRef.off();
+        // }
     }, []);
 
     return (

@@ -15,7 +15,8 @@ const Main = () => {
     // render() {
         return (
             <>
-                <Tabs defaultActiveKey="alerts-summary">
+                {/* <Tabs defaultActiveKey="alerts-summary"> */}
+                <Tabs defaultActiveKey="batches-overview">
                     <Tab eventKey="alerts-summary" title="Delivery Status">
                         <AlertsSummary />
                     </Tab>
